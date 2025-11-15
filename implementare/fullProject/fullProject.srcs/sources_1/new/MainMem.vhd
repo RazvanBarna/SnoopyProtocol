@@ -1,73 +1,107 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-
 entity MainMem is
   Port (dataIn : in std_logic_vector(63 downto 0);
-        cache_id : in std_logic;
-        instr_type : in std_logic_vector(1 downto 0); -- 00 read, 01 wr , 10 wb
-        clk,reset,wr_en : in std_logic;
-        cache_id_out : out std_logic;
-        send_data_to_bus: out std_logic_vector(63 downto 0));
+        write_enMain : in std_logic;
+        clk : in std_logic;
+        send_data_to_CCback: out std_logic_vector(63 downto 0));
 end MainMem;
 
 architecture Behavioral of MainMem is
-type matrix is array( 0 to 63 ) of std_logic_vector(150 downto 0); --4 de 32 ,22 tag , 1 valid
-signal M : matrix :=(others =>(others =>'0'));
-signal index: std_logic_vector( 5 downto 0) :=(others =>'0');
-signal offset : std_logic_vector(3 downto 0) :=(others =>'0');
-signal tag : std_logic_vector(21 downto 0) :=(others =>'0');
-signal data,data_aux,data_read : std_logic_vector(31 downto 0) :=(others =>'0');
-signal data_out : std_logic_vector(63 downto 0) :=(others =>'0');
+type matrix is array( 0 to 63 ) of std_logic_vector(544 downto 0); --16 de 32 ,22 tag , 1 valid 6 index , 4 offset
+signal M : matrix := (
+    0  => (544 => '1', others => '0'),
+    1  => (544 => '1', others => '0'),
+    2  => (544 => '1', others => '0'),
+    3  => (544 => '1', others => '0'),
+    4  => (544 => '1', others => '0'),
+    5  => (544 => '1', others => '0'),
+    6  => (544 => '1', others => '0'),
+    7  => (544 => '1', others => '0'),
+    8  => (544 => '1', others => '0'),
+    9  => (544 => '1', others => '0'),
+    10 => (544 => '1', others => '0'),
+    11 => (544 => '1', others => '0'),
+    12 => (544 => '1', others => '0'),
+    13 => (544 => '1', others => '0'),
+    14 => (544 => '1', others => '0'),
+    15 => (544 => '1', others => '0'),
+    16 => (544 => '1', others => '0'),
+    17 => (544 => '1', others => '0'),
+    18 => (544 => '1', others => '0'),
+    19 => (544 => '1', others => '0'),
+    20 => (544 => '1', others => '0'),
+    21 => (544 => '1', others => '0'),
+    22 => (544 => '1', others => '0'),
+    23 => (544 => '1', others => '0'),
+    24 => (544 => '1', others => '0'),
+    25 => (544 => '1', others => '0'),
+    26 => (544 => '1', others => '0'),
+    27 => (544 => '1', others => '0'),
+    28 => (544 => '1', others => '0'),
+    29 => (544 => '1', others => '0'),
+    30 => (544 => '1', others => '0'),
+    31 => (544 => '1', others => '0'),
+    32 => (544 => '1', others => '0'),
+    33 => (544 => '1', others => '0'),
+    34 => (544 => '1', others => '0'),
+    35 => (544 => '1', others => '0'),
+    36 => (544 => '1', others => '0'),
+    37 => (544 => '1', others => '0'),
+    38 => (544 => '1', others => '0'),
+    39 => (544 => '1', others => '0'),
+    40 => (544 => '1', others => '0'),
+    41 => (544 => '1', others => '0'),
+    42 => (544 => '1', others => '0'),
+    43 => (544 => '1', others => '0'),
+    44 => (544 => '1', others => '0'),
+    45 => (544 => '1', others => '0'),
+    46 => (544 => '1', others => '0'),
+    47 => (544 => '1', others => '0'),
+    48 => (544 => '1', others => '0'),
+    49 => (544 => '1', others => '0'),
+    50 => (544 => '1', others => '0'),
+    51 => (544 => '1', others => '0'),
+    52 => (544 => '1', others => '0'),
+    53 => (544 => '1', others => '0'),
+    54 => (544 => '1', others => '0'),
+    55 => (544 => '1', others => '0'),
+    56 => (544 => '1', others => '0'),
+    57 => (544 => '1', others => '0'),
+    58 => (544 => '1', others => '0'),
+    59 => (544 => '1', others => '0'),
+    60 => (544 => '1', others => '0'),
+    61 => (544 => '1', others => '0'),
+    62 => (544 => '1', others => '0'),
+    63 => (544 => '1', others => '0')
+);
+signal index  : integer := 0;
+signal offset : integer range 0 to 15 := 0;
+signal aux : std_logic_vector(63 downto 0) :=(others =>'0');
 
 begin
-    tag <= dataIn(63 downto 42);
-    index <= dataIn(41 downto 36);
-    offset<= dataIn(35 downto 32);
-    data <= dataIn(31 downto 0);
-    
-    process(clk)
-         variable high, low: integer; 
-    begin
-        if rising_edge(clk) then 
-             high := 127 - 32*to_integer(unsigned(offset));
-             low := 127 - 32*(to_integer(unsigned(offset))+1) + 1;
-            if M(to_integer(unsigned(index)))(150) = '1' then 
-                if tag = M(to_integer(unsigned(index)))(149 downto 128) then 
-                    if wr_en = '1' and (instr_type = "01" or instr_type = "10") then
-                        M(to_integer(unsigned(index)))(high downto low) <= data;
-                         data_aux <=  data;
-                             end if;
-                             else data_aux <= (others =>'Z');
-                             end if;
-                             else 
-                              M(to_integer(unsigned(index)))(high downto low)<= data;
-                              data_aux <= data;
-                                M(to_integer(unsigned(index)))(150) <= '1';
-                                M(to_integer(unsigned(index)))(149 downto 128) <= tag;
-                             end if;
-                             elsif reset ='1' then M <= (others =>(others =>'0'));
-                                
-                             end if;
-         
-    end process;
-    data_read<= M(to_integer(unsigned(index)))(127 - 32*to_integer(unsigned(offset)) downto 127 - 32*(to_integer(unsigned(offset))+1) + 1);
-    
-    process(instr_type, data_aux, tag, index, offset, cache_id)
-    begin
-        if instr_type = "00" then --rd
-           data_out <= tag & index & offset & data_read;
-           cache_id_out <= cache_id;
-        elsif instr_type = "01" then --wr NU CONTEAZA AICI 
-            data_out <= tag & index & offset & data_aux;
-            cache_id_out <= cache_id;
-        elsif instr_type = "10" then --wb
-             data_out <= tag & index & offset & data_aux;
-             cache_id_out <= not cache_id; 
-        end if;
-    end process;
-    
-    send_data_to_bus <= data_out;
 
+proc_write: process(clk)
+            variable start_bit : integer ;
+            variable end_bit: integer ;
+            begin
+                if rising_edge(clk) then 
+                    if write_enMain = '1' then 
+                        if M(index)(544) = '1' then
+                        index  <= to_integer(unsigned(dataIn(41 downto 36)));
+                        offset <= to_integer(unsigned(dataIn(35 downto 32)));
+                        start_bit := offset * 32;
+                        end_bit   := start_bit + 31;
+                        M(index)(end_bit downto start_bit) <= dataIn(31 downto 0);
+                        aux <= M(index)(543 downto 512) & dataIn(31 downto 0);
+                    end if;
+                    else 
+                         aux <=(others =>'0');
+                    end if;
+                    end if;
+              end process;
+              
+send_data_to_CCback <= aux;
 
 end Behavioral;
