@@ -61,27 +61,31 @@ begin
 --        wb <='1';
 --        readWriteCC <= '0';
 --        data_fromCC <= "00" &X"09877" & "10" & "000100" & "0000" & X"11000055"; --S
---       wait for 20 ns; -- wb merge ,scrie in memorie
+--       wait for 20 ns; --load , ar trb sa citesc asta cu wb 
+        
         
 --        --read simplu
 --        wb <='0';
 --        aluRes <= x"00000000";
---        Rd2 <= x"00001234";
+--        Rd2 <= x"00000000";
 --        memWrite <='0';
 --        readWriteCC <='0';
 --        wait for 20 ns;
+        
 --        Rd2 <= (others =>'0');
---        en <='1';
 --        wb <='1';
---        readWriteCC <= '0';
---        data_fromCC <= "11" &X"09877" & "10" & "000100" & "0000" & X"99900055"; --I
---        wait for 20 ns; -- wb merge ,scrie in memorie
-        en <='1';
-        wb <= '0';
-        readWriteCC <='1';
-        memWrite <='1';
-        --data_fromCC <= "00" &X"09877" & "10" & "000100" & "0000" & X"99900055"; nu e nevoie
-        wait for 20 ns ; 
+         en <='1';
+        readWriteCC <= '1';
+        memWrite <= '1';
+        Rd2 <= X"99900055";
+        data_fromCC <= (others => '0'); --M scriu in memorie nu conteaza dataFromCC
+        wait for 20 ns; -- wb merge ,scrie in memorie
+--        en <='1';
+--        wb <= '0';
+--        readWriteCC <='1';
+--        memWrite <='1';
+--        --data_fromCC <= "00" &X"09877" & "10" & "000100" & "0000" & X"99900055"; nu e nevoie
+--        wait for 20 ns ; 
 
         
         -- ar trb sa se activeze ucc ca poate fi wb 

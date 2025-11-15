@@ -44,19 +44,19 @@ begin
                                     end loop;
                                     
                             if wb_fromCC = '1' then 
-                                M(index_line_original) <= data_in_fromCC ; -- S
-                                M(index_line_other) <= (not data_in_fromCC(67)) &data_in_fromCC(66 downto 0); -- S
-                                data_out_aux<= data_in_fromCC;
+                                M(index_line_original) <= data_in_fromCC(67 downto 32) & M(index_line_other)(31 downto 0) ; -- S
+                                M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
+                                data_out_aux<= data_in_fromCC(67 downto 32) & M(index_line_other)(31 downto 0);
                                 wb_to_aux<='1';
                              else 
                                 wb_to_aux<='0';
-                                M(index_line_original) <= data_in_fromCC;
                                 if data_in_fromCC(66) = '1' then --scrie d
-                                    M(index_line_other)(65 downto 64) <= "11";
-                                    data_out_aux<= data_in_fromCC(67 downto 66) & "10" &data_in_fromCC(63 downto 0) ;
-                                    else 
+                                    M(index_line_other)(65 downto 64) <= "11"; -- fac invalid pe celalalt
+                                    M(index_line_original) <= data_in_fromCC;
+                                    data_out_aux<= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
+                                    else --citire
                                       M(index_line_other)(65 downto 64) <= "00"; 
-                                      data_out_aux<= data_in_fromCC(67 downto 66) & "00" &data_in_fromCC(63 downto 0) ;
+                                      data_out_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
                                     end if;
                                 end if;
                                 end if;

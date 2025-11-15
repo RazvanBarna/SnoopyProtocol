@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 entity Mem1 is
-   Port (memWrite,En,clk,wb,readWriteCC: in std_logic;
+ Port (memWrite,En,clk,wb,readWriteCC: in std_logic;
          AluRes,Rd2: in std_logic_vector(31 downto 0);
          data_fromCC : in std_logic_vector(65 downto 0);
          send_data_to_bus,line_debug : out std_logic_vector(65 downto 0) ; 
@@ -18,8 +18,8 @@ signal found : std_logic :='0';
 type matrix is array(0 to 63) of std_logic_vector(65 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "11"& "0110" &X"8877" & "10" & "000100" & "0000" & X"00777111", --  +5   (pozitiv) stare tag index offset data
-    --1 => x"FFFFFFFD", --  -3   (negativ)
+    0 => "11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00111111", --  +5   (pozitiv) stare tag index offset data
+    1 => "00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
 --    4 => "10" & x"00000020" & "0100" & "0000" & x"DEADBE", -- +12   (pozitiv)
@@ -31,10 +31,6 @@ signal m : matrix := (
 --    -- Restul memoriei rămâne 0, suma 58 003A ,5 pozitive
     others => (others => '0'));
 
-component vector_toInt is
- Port (vector : in std_logic_vector(5 downto 0);
-        int : out integer);
-end component;
 
 signal alu_res_aux : std_logic_vector(5 downto 0);
 
@@ -42,69 +38,54 @@ signal ucc_aux : std_logic :='0';
 begin
 
 alu_res_aux <= aluRes(7 downto 2);
---C1: vector_toInt port map(vector => alu_res_aux , int => address_aux);
+
 address_aux <= to_integer(unsigned(AluRes(7 downto 2))) mod 64;
 
 
-find_line: process(data_fromCC)
+find_line: process(clk) -- caut daca nu e 0 ceea ce primesc
         begin 
+        if rising_edge(clk) then
+            if wb = '1' then 
              for i in 0 to 63 loop
-            if m(i) = data_fromCC and (not (data_fromCC = X"000000000000000000" & "00")) then
+            if m(i) = data_fromCC and (not (data_fromCC = X"0000000000000000" & "00")) then
                 line_indexCc <= i;
                 exit;
             end if;
         end loop;
+        end if;
+        end if;
         end process;
         
 aluResOut<=AluRes;
---adresa modificata in functie de actiune 
-address <= address_aux when ucc_aux = '0' else line_indexCc;
+
+address <= address_aux when wb = '0' else line_indexCc;
 
 --ce iese din memorie in f de actiune
-memData<=m(address)(31 downto 0);
+--memData<=m(address)(31 downto 0);
  
 useCC <= ucc_aux;
- --daca activez CC
---ucc_aux<= '1' when (readWriteCC = '1' and ( m(address)(65 downto 64) = "00" or m(address)(65 downto 64) = "11")) 
---                 or (readWriteCC = '0' and  m(address)(65 downto 64) = "11")
---                else '0' ;
-                
---send_data_to_bus <= m(address) when ucc_aux = '1' else (others =>'Z');
 
 process(clk)
 begin   
     if rising_edge(clk) then 
-         line_debug<=M(address);
+        line_debug<=M(address);
         ucc_aux <= '0';
-        send_data_to_bus <= (others => 'Z');
-        if en='1' and memWrite='1' and readWriteCC = '1'and not( m(address)(65 downto 64) = "10") then --daca nu e M trimit cerere
+        if wb = '1'and readWriteCC = '0' then 
+            m(address) <= data_fromCC;
+            memData<=data_fromCC(31 downto 0);
+        elsif en='1' and memWrite='1' then -- mereu cand scrie trimit cerere
             ucc_aux<= '1' ;
-            send_data_to_bus <= m(address);
+            send_data_to_bus <= m(address)(65 downto 32) & Rd2; -- trimit cu fosta stare , dar valoarea noua
              m(address) <= "10" & m(address)(63 downto 32) & Rd2; -- asta scriu , devine M si in CC trimit 
-            send_data_to_bus <= "10" & m(address)(63 downto 32) & Rd2; -- asta trm la CC
-           -- m(address)<= data_fromCC;
-          elsif m(address)(65 downto 64) = "11" and readWriteCC = '0' and en = '1' then -- citeste si are loc wb, modif   wb = '1
+             memData<=Rd2;
+          elsif readWriteCC = '0' and en = '1' then -- citeste 
             ucc_aux<= '1' ;
             send_data_to_bus <= m(address);
-          elsif en ='1' and memWrite = '1' and m(address)(65 downto 64 ) = "10" then -- scriu normal
-            m(address)(31 downto 0) <= Rd2; 
+            memData <= m(address)(31 downto 0);
+            else memData <= (others =>'Z');
             end if;
             end if;
             end process;
-            
-   wb_process: process(clk,wb,data_fromCC)
-            begin
-                if rising_edge(clk) then 
-                    if wb = '1'and readWriteCC = '0' then 
-                        m(address) <= data_fromCC;
-                 end if;
-                 end if;
-                
-            end process;
-             
- 
- 
---          elsif en='1' and memWrite='1' and readWriteCC = '1' and ( m(address)(65 downto 64) = "00" or m(address)(65 downto 64) = "11") then --S sau I
---               line_index <= std_logic_vector(to_unsigned(address, line_index'length));
+          
  
 end Behavioral;

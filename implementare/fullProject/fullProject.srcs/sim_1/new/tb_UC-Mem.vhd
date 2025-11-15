@@ -49,7 +49,7 @@ clk_process: process
 test_process: process
               begin
               
-              data_inFIFO <= "0"&"0" &"00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111"; -- citeste SS , ar trb sa fie data to core 
+              data_inFIFO <= "0"&"0" &"00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"BBBBB111"; -- citeste SS , ar trb sa fie data to core 
               new_fifo<='1';
               wait for 20 ns;
               new_fifo <= '0';

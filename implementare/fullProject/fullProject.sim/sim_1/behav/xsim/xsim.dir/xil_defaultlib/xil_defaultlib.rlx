@@ -2,7 +2,6 @@
 2020.2
 May 22 2024
 19:03:11
-C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sim_1/new/sim_mem.vhd,1762772654,vhdl,,,,tb_mem,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sim_1/new/tb_test_mux_cores.vhd,1762773409,vhdl,,,,tb_test_mux_cores,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sim_1/new/test_fifo_part1.vhd,1762708016,vhdl,,,,tb_test_fifo_mux_cores,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sim_1/new/test_mainMem.vhd,1762376076,vhdl,,,,tb_mainmem,,,,,,,,
@@ -10,7 +9,6 @@ C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProje
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/Execution.vhd,1744350303,vhdl,,,,execution,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/ID.vhd,1744305795,vhdl,,,,id,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/IFetch.vhd,1762770307,vhdl,,,,ifetch0,,,,,,,,
-C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/Mem.vhd,1762772414,vhdl,,,,mem0,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/RomInstructions1.vhd,1762772887,vhdl,,,,rominstructions1,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/UC.vhd,1762704462,vhdl,,,,uc,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/testEnv.vhd,1762717761,vhdl,,,,core,,,,,,,,
@@ -25,9 +23,11 @@ C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProje
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/new/mux_selector.vhd,1762717836,vhdl,,,,mux_selector,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/new/test_fifo_mux_cores.vhd,1762770590,vhdl,C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sim_1/new/test_fifo_part1.vhd,,,test_fifo_mux_cores,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/Proiect/implementare/fullProject/fullProject.srcs/sources_1/new/vector_toInt.vhd,1762718557,vhdl,,,,vector_toint,,,,,,,,
-C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sim_1/new/tb_UC-Mem.vhd,1763224044,vhdl,,,,tb_uc_mem,,,,,,,,
+C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sim_1/new/sim_mem.vhd,1763238767,vhdl,,,,tb_mem,,,,,,,,
+C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sim_1/new/tb_UC-Mem.vhd,1763235138,vhdl,,,,tb_uc_mem,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sim_1/new/tb_Uc.vhd,1763219831,vhdl,,,,tb_uc,,,,,,,,
+C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/Mem.vhd,1763238271,vhdl,,,,mem0,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/MainMem.vhd,1763225111,vhdl,,,,mainmem,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/UC_Snoopy.vhd,1763222917,vhdl,,,,uc_snoopy,,,,,,,,
-C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/table_RAM.vhd,1763219750,vhdl,,,,table_ram,,,,,,,,
+C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/table_RAM.vhd,1763235350,vhdl,,,,table_ram,,,,,,,,
 C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/test_UC_mem.vhd,1763224031,vhdl,,,,test_uc_mem,,,,,,,,

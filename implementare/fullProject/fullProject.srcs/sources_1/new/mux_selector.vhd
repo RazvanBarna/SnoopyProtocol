@@ -23,6 +23,6 @@ data_total_aux1<= id_1 & readWrite_type1 &  data_in1;
 
 data_out_toCC <= data_total_aux0 when useCC0='1' else
                   data_total_aux1 when useCC1='1' else
-                  (others=>'0');
+                  data_total_aux0 when useCC0='1' and  useCC1='1' else data_total_aux1;
 
 end Behavioral;
