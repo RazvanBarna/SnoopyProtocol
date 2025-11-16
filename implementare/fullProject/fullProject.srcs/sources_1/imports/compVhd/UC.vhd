@@ -48,6 +48,7 @@ case instr is
             jump<='1';--jump
             aluOp<="XX"; -- cod jump
     when others => 
+            lw_swInstr <='0';
             regDst<='0';extOp<='0';aluSrc<='0';branch<='0';jump<='0';
             bgtz<='0';bne<='0';memWrite<='0';memToReg<='0';regWrite<='0';aluOp<="00";   
             readWriteCC <='0';

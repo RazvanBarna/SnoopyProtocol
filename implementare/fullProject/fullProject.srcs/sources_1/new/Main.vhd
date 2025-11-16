@@ -17,9 +17,9 @@ end entity;
 architecture arhi_main of main is 
 
 component Core0 is
-  Port (clk,btnRst,wb,core_id_in,next_instr_core0: in std_logic;
+  Port (clk,btnRst,wb,core_id_in,next_instr_core0: in std_logic; --core id e in ca sa il setez eu
         data_fromCC : in std_logic_vector(65 downto 0);
-        readWriteCC,core_id_out,useCC: out std_logic;
+        readWriteCC,core_id_out,useCC,lw_swInstr: out std_logic;
         send_data_to_bus,debug,line_debug : out std_logic_vector(65 downto 0)        
         );
 end component;
@@ -27,7 +27,7 @@ end component;
 component Core1 is
   Port (clk,btnRst,wb,core_id_in,next_instr_core1: in std_logic; --core id e in ca sa il setez eu
         data_fromCC : in std_logic_vector(65 downto 0);
-        readWriteCC,core_id_out,useCC: out std_logic;
+        readWriteCC,core_id_out,useCC,lw_swInstr: out std_logic;
         send_data_to_bus,debug,line_debug : out std_logic_vector(65 downto 0)        
         );
 end component;
@@ -55,7 +55,7 @@ end component;
 component UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(67 downto 0);
         data_toCore0,data_toCore1,data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
-        clk,new_fifo: in std_logic;
+        clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         wb_toCore0, wb_toCore1 : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
@@ -69,12 +69,13 @@ component MainMem is
         send_data_to_CCback: out std_logic_vector(63 downto 0));
 end component;
 
-signal wb0,wb1,wb_table_degbug_aux,next_instr_core0,next_instr_core1,readWriteCC0, readWriteCC1,core_id0_out,core_id1_out,useCC0,useCC1,new_fifo,wr_fifo,rd_fifo,write_enMain : std_logic :='0';
+signal wb0,lw_swInstr0,lw_swInstr1,wb1,wb_table_degbug_aux,next_instr_core0,next_instr_core1,readWriteCC0, readWriteCC1,core_id0_out,core_id1_out,useCC0,useCC1,new_fifo,wr_fifo,rd_fifo,write_enMain : std_logic :='0';
 signal data_fromCC0,data_fromCC1,data_out_toCC, data_out_toCC_fromFIFO : std_logic_vector(67 downto 0) := (others =>'0');
 signal send_data_to_bus0, send_data_to_bus1 : std_logic_vector(65 downto 0) :=(others =>'0');
 signal data_toMain : std_logic_vector(63 downto 0) :=(others =>'0');
 
 begin
+
 
 Core_0: Core0 port map(
                         clk =>clk,
@@ -85,6 +86,7 @@ Core_0: Core0 port map(
                         data_fromCC =>data_fromCC0(65 downto 0),
                         readWriteCC => readWriteCC0,
                         core_id_out => core_id0_out,
+                        lw_swInstr => lw_swInstr0,
                         useCC => useCC0,
                         send_data_to_bus => send_data_to_bus0,
                         debug =>out_toMuxCore0_debug,
@@ -99,6 +101,7 @@ Core_1: Core1 port map(
                         data_fromCC =>data_fromCC1(65 downto 0),
                         readWriteCC => readWriteCC1,
                         core_id_out => core_id1_out,
+                        lw_swInstr => lw_swInstr1,
                         useCC => useCC1,
                         send_data_to_bus => send_data_to_bus1,
                         debug =>out_toMuxCore1_debug,
@@ -142,6 +145,8 @@ snoopy_cc : UC_Snoopy port map(
                                 data_fromTable_debug => data_fromTable_debug,
                                 clk => clk,new_fifo => new_fifo,
                                 wb_toCore0 => wb0,
+                                lw_str_core0 =>lw_swInstr0,
+                                lw_str_core1 =>lw_swInstr1,
                                 wb_toCore1 => wb1,
                                 write_enMain => write_enMain,
                                 next_instr_core0 =>next_instr_core0,

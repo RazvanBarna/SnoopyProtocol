@@ -12,13 +12,14 @@ entity Mem0 is
          memData,aluResOut: out std_logic_vector(31 downto 0));
 end Mem0;
 
+
 architecture Behavioral of Mem0 is
 signal line_indexCc, address, address_aux : integer range 0 to 63 := 0;
 signal found : std_logic :='0';
 type matrix is array(0 to 63) of std_logic_vector(65 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
+    0 => "00"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
     1 => "00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
@@ -47,7 +48,7 @@ find_line: process(clk) -- caut daca nu e 0 ceea ce primesc
         if rising_edge(clk) then
             if wb = '1' then 
              for i in 0 to 63 loop
-            if m(i) = data_fromCC and (not (data_fromCC = X"0000000000000000" & "00")) then
+            if m(i) = data_fromCC(63 downto 32) and (not (data_fromCC = X"0000000000000000" & "00")) then
                 line_indexCc <= i;
                 exit;
             end if;

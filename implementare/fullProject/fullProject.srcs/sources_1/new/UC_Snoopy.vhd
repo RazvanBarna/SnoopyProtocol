@@ -5,9 +5,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(67 downto 0);
         data_toCore0,data_toCore1,data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
-        clk,new_fifo: in std_logic;
+        clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         wb_toCore0, wb_toCore1 : out std_logic;
-        write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
+        write_enMain,next_instr_core0, next_instr_core1,rd_fifo,change_stateToC0,change_stateToC1  : out std_logic;
+        state_c0,state_c1: out std_logic_vector(1 downto 0);
         line_toMain : out std_logic_vector(63 downto 0)
         );
 end UC_Snoopy;
@@ -30,8 +31,8 @@ end component;
 
 begin
 
-next_instr_core0 <= '1' when done_aux ='1' and data_inFIFO(67) = '0' else '0';
-next_instr_core1 <= '1' when done_aux ='1' and data_inFIFO(67) = '1' else '0';
+next_instr_core0 <= '1' when (done_aux ='1' and data_inFIFO(67) = '0') or lw_str_core0 = '0' else '0';
+next_instr_core1 <= '1' when (done_aux ='1' and data_inFIFO(67) = '1') or lw_str_core1 = '0' else '0';
 rd_fifo <= done_aux;
 
 C: table_RAM port map(
@@ -131,7 +132,6 @@ write_core: process(clk)
                     end if;
             
             end process;
-
 data_fromTable_debug <= data_fromTable;
 
 end Behavioral;
