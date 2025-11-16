@@ -6,7 +6,7 @@ entity table_RAM is
   Port (data_in_fromCC : in std_logic_vector(67 downto 0); 
         data_out_toCC : out std_logic_vector(67 downto 0);
         wb_fromCC : in std_logic;
-        wb_ToCC : out std_logic;
+        wb_ToCC,done : out std_logic;
         clk : in std_logic );
 end table_RAM;
 
@@ -19,6 +19,7 @@ signal M : Matrix :=(
 
 signal data_out_aux : std_logic_vector( 67 downto 0) :=(others =>'0');
 signal wb_to_aux : std_logic := '0';
+signal done_aux : std_logic :='0';
 
 begin
      
@@ -48,8 +49,10 @@ begin
                                 M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
                                 data_out_aux<= data_in_fromCC(67 downto 32) & M(index_line_other)(31 downto 0);
                                 wb_to_aux<='1';
+                                done_aux<= '1';
                              else 
                                 wb_to_aux<='0';
+                                done_aux<= '1';
                                 if data_in_fromCC(66) = '1' then --scrie d
                                     M(index_line_other)(65 downto 64) <= "11"; -- fac invalid pe celalalt
                                     M(index_line_original) <= data_in_fromCC;
@@ -63,6 +66,7 @@ begin
                                 
                     end process;
        
+done <= done_aux;
 wb_ToCC <= wb_to_aux;
 data_out_toCC <= data_out_aux;
 

@@ -7,7 +7,7 @@ entity UC_Snoopy is
         data_toCore0,data_toCore1,data_fromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo: in std_logic;
         wb_toCore0, wb_toCore1,wb_table_debug,wb_TOtable_debug : out std_logic;
-        write_enMain : out std_logic;
+        write_enMain,next_instr_core0, next_instr_core1 : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
 end UC_Snoopy;
@@ -17,24 +17,29 @@ architecture Behavioral of UC_Snoopy is
 type MSI_state is (S, M , I);
 signal next_state , current_state : MSI_STATE ;
 signal data_toCore_aux : std_logic_vector(67 downto 0) :=(others =>'0');
-signal wb_aux,wb_table : std_logic :='0';
+signal wb_aux,wb_table,done_aux : std_logic :='0';
 signal data_toTable,data_fromTable : std_logic_vector(67 downto 0) :=(others =>'0');
 
 component table_RAM is
   Port (data_in_fromCC : in std_logic_vector(67 downto 0); 
         data_out_toCC : out std_logic_vector(67 downto 0);
         wb_fromCC : in std_logic;
-        wb_ToCC : out std_logic;
+        wb_ToCC,done : out std_logic;
         clk : in std_logic );
 end component;
 
 begin
+
+next_instr_core0 <= '1' when done_aux ='1' and data_inFIFO(67) = '0' else '0';
+next_instr_core1 <= '1' when done_aux ='1' and data_inFIFO(67) = '1' else '0';
+
 
 C: table_RAM port map(
                      clk => clk,
                      data_in_fromCC => data_toTable,
                      wb_fromCC =>wb_aux,
                      wb_ToCC => wb_table,
+                     done => done_aux,
                      data_out_toCC =>data_fromTable );
 
             

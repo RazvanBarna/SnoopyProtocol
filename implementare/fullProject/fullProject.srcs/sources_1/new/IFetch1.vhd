@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use ieee.std_logic_unsigned.all;
 
 entity IFetch1 is
-  Port (rst,clk,en,jump, PcSrc : in std_logic;
+  Port (rst,clk,en,jump, PcSrc,next_instr_core1 : in std_logic;
         jumpAddress, branchAddress: in std_logic_vector( 31 downto 0);
         instruction, pc4 : out std_logic_vector( 31 downto 0) );
 end IFetch1;
@@ -23,7 +23,7 @@ begin
     if rst='1' then 
         outPC<= (others =>'0');
      elsif rising_edge(clk) then 
-        if en ='1' then 
+        if en ='1' and next_instr_core1 = '1'then 
             outPC <= D;
             end if;
             end if;

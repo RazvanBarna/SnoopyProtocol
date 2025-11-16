@@ -9,7 +9,7 @@
       Port (
             rd, wr, wr_inc, rd_inc, rst, clk : in std_logic;
             data_in   : in std_logic_vector(67 downto 0);
-            full, empty : out std_logic;
+            full, empty,new_fifo : out std_logic;
             data_out : out std_logic_vector(67 downto 0);
             wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0);
             out_test :out std_logic_vector(67 downto 0)
@@ -40,6 +40,7 @@
     end component;
     
     --signal found : std_logic :='0';
+    signal empty_aux : std_logic :='0';
     
     begin
     
@@ -108,16 +109,23 @@
             );
         end generate gen_fifos2;
         
-         mux: process(M, rd_ptr, rd)
-        begin
-            if rd = '1' then
-                data_out <= M(to_integer(unsigned(rd_ptr)));
-            else
-                data_out <= (others => 'Z');
-            end if;
-        end process;
+read_proc: process(clk)
+begin
+    if rising_edge(clk) then
+        if rst = '1' then
+            data_out <= (others => '0');
+        elsif rd_inc = '1'and rd = '1' and count_aux > 0 then
+            data_out <= M(to_integer(unsigned(rd_ptr)));
+            new_fifo <='1'; 
+        else
+            new_fifo <='0';
+            data_out <= (others => 'Z');  -- sau (others=>'0') dacă nu vrei tri-state
+        end if;
+    end if;
+end process;
     
-        empty <= '1' when count_aux = 0 else '0';
+        empty_aux <= '1' when count_aux = 0 else '0';
+        empty <= empty_aux;
         full  <= '1' when count_aux = MAX_SIZE else '0';
         wr_ptr_out <= wr_ptr;
         rd_ptr_out <= rd_ptr;

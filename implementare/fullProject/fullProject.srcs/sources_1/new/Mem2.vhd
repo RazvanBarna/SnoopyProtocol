@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 
 entity Mem1 is
- Port (memWrite,En,clk,wb,readWriteCC: in std_logic;
+ Port (memWrite,En,clk,wb,readWriteCC,lw_swInstr: in std_logic;
          AluRes,Rd2: in std_logic_vector(31 downto 0);
          data_fromCC : in std_logic_vector(65 downto 0);
          send_data_to_bus,line_debug : out std_logic_vector(65 downto 0) ; 
@@ -18,7 +18,7 @@ signal found : std_logic :='0';
 type matrix is array(0 to 63) of std_logic_vector(65 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00111111", --  +5   (pozitiv) stare tag index offset data
+    0 => "11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00BBBBBB", --  +5   (pozitiv) stare tag index offset data
     1 => "00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
@@ -70,19 +70,20 @@ begin
     if rising_edge(clk) then 
         line_debug<=M(address);
         ucc_aux <= '0';
-        if wb = '1'and readWriteCC = '0' then 
+        if wb = '1'and readWriteCC = '0'and lw_swInstr = '1' then 
             m(address) <= data_fromCC;
             memData<=data_fromCC(31 downto 0);
-        elsif en='1' and memWrite='1' then -- mereu cand scrie trimit cerere
+        elsif en='1' and memWrite='1' and lw_swInstr = '1' then -- mereu cand scrie trimit cerere
             ucc_aux<= '1' ;
             send_data_to_bus <= m(address)(65 downto 32) & Rd2; -- trimit cu fosta stare , dar valoarea noua
              m(address) <= "10" & m(address)(63 downto 32) & Rd2; -- asta scriu , devine M si in CC trimit 
              memData<=Rd2;
-          elsif readWriteCC = '0' and en = '1' then -- citeste 
+          elsif readWriteCC = '0' and en = '1' and lw_swInstr = '1' then -- citeste , prima data intra in wb daca este invalid ,aici M sau S
             ucc_aux<= '1' ;
             send_data_to_bus <= m(address);
+            m(address)(65 downto 64) <= "00";
             memData <= m(address)(31 downto 0);
-            else memData <= (others =>'Z');
+            --else memData <= Rd2;
             end if;
             end if;
             end process;

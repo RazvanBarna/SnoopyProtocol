@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 entity UC is
   Port (instr: in std_logic_vector(5 downto 0);
         regDst,extOp,aluSrc,branch,jump,bgtz,bne,memWrite,memToReg, regWrite: out std_logic;
-        readWriteCC : out std_logic;
+        readWriteCC,lw_swInstr : out std_logic;
         aluOp : out std_logic_vector(1 downto 0));
 end UC;
 
@@ -16,6 +16,7 @@ begin
 process(instr)
 begin
 regDst<='0';extOp<='0';aluSrc<='0';branch<='0';jump<='0';
+lw_swInstr<='0';
 bgtz<='0';bne<='0';memWrite<='0';memToReg<='0';regWrite<='0';aluOp<="00"; readWriteCC <='0';
 case instr is 
     when "000000" => 
@@ -25,10 +26,12 @@ case instr is
             extop<='1';aluSrc<='1';regWrite<='1';--addi
             aluOp<="10";
     when "100001" => 
+            lw_swInstr<='1';
             readWriteCC <='0';
             extop<='1';aluSrc<='1';regWrite<='1';memToReg<='1';--Lw
             aluOp<="10";--cod +
     when "100010"  =>
+            lw_swInstr<='1';
             readWriteCC <='1';
             extop<='1';aluSrc<='1';memWrite<='1';--sw
             aluOp<="10";
