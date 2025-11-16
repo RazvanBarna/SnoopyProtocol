@@ -4,9 +4,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(67 downto 0);
-        data_toCore0,data_toCore1,data_fromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
+        data_toCore0,data_toCore1,data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo: in std_logic;
-        wb_toCore0, wb_toCore1 : out std_logic;
+        wb_toCore0, wb_toCore1,wb_table_degbug : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -16,13 +16,13 @@ architecture Behavioral of UC_Snoopy is
 
 type MSI_state is (S, M , I);
 signal next_state , current_state : MSI_STATE ;
-signal data_toCore_aux : std_logic_vector(67 downto 0) :=(others =>'0');
+signal data_toCore_aux,data_in_fromCC_debug_aux : std_logic_vector(67 downto 0) :=(others =>'0');
 signal wb_aux,wb_table,done_aux : std_logic :='0';
 signal data_toTable,data_fromTable : std_logic_vector(67 downto 0) :=(others =>'0');
 
 component table_RAM is
   Port (data_in_fromCC : in std_logic_vector(67 downto 0); 
-        data_out_toCC : out std_logic_vector(67 downto 0);
+        data_out_toCC,data_in_fromCC_debug : out std_logic_vector(67 downto 0);
         wb_fromCC : in std_logic;
         wb_ToCC,done : out std_logic;
         clk : in std_logic );
@@ -39,10 +39,11 @@ C: table_RAM port map(
                      data_in_fromCC => data_toTable,
                      wb_fromCC =>wb_aux,
                      wb_ToCC => wb_table,
+                     data_in_fromCC_debug  => data_in_fromCC_debug_aux,
                      done => done_aux,
                      data_out_toCC =>data_fromTable );
 
-            
+ data_in_fromCC_debug <= data_in_fromCC_debug_aux;           
 state_reg: process(clk)
 begin
     if rising_edge(clk) then
@@ -87,7 +88,7 @@ FSM: process(clk)
                               
                    when I =>  if data_inFIFO(66) = '0' then -- wb
                                 next_state <= S;
-                                data_toTable<=data_inFIFO(67 downto 66) & "00" & data_inFIFO(63 downto 0);
+                                --data_toTable<=data_inFIFO(67 downto 66) & "11" & data_inFIFO(63 downto 0);
                                 wb_aux <='1';
                               else
                                 next_state <= M;
@@ -132,4 +133,5 @@ write_core: process(clk)
             end process;
 
 data_fromTable_debug <= data_fromTable;
+wb_table_degbug<= wb_table;
 end Behavioral;

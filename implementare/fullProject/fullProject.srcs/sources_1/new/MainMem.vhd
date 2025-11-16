@@ -11,11 +11,11 @@ end MainMem;
 architecture Behavioral of MainMem is
 type matrix is array( 0 to 63 ) of std_logic_vector(544 downto 0); --16 de 32 ,22 tag , 1 valid 6 index , 4 offset
 signal M : matrix := (
-    0  => (544 => '1', others => '0'),
+   0 =>   (544 => '1', others => '0'),
     1  => (544 => '1', others => '0'),
     2  => (544 => '1', others => '0'),
     3  => (544 => '1', others => '0'),
-    4  => (544 => '1', others => '0'),
+    4 =>  "1" & "0000" & X"9877" & "10" & "000100" & "0000" & (511 downto 0 => '0'),
     5  => (544 => '1', others => '0'),
     6  => (544 => '1', others => '0'),
     7  => (544 => '1', others => '0'),
@@ -87,17 +87,16 @@ proc_write: process(clk)
             variable end_bit: integer ;
             begin
                 if rising_edge(clk) then 
-                    if write_enMain = '1' then 
-                        if M(index)(544) = '1' then
+                   if write_enMain = '1' then 
                         index  <= to_integer(unsigned(dataIn(41 downto 36)));
                         offset <= to_integer(unsigned(dataIn(35 downto 32)));
+                        if M(index)(544) = '1' then
                         start_bit := offset * 32;
                         end_bit   := start_bit + 31;
                         M(index)(end_bit downto start_bit) <= dataIn(31 downto 0);
-                        aux <= M(index)(543 downto 512) & dataIn(31 downto 0);
+                        aux <= dataIn;
                     end if;
                     else 
-                         aux <=(others =>'0');
                     end if;
                     end if;
               end process;

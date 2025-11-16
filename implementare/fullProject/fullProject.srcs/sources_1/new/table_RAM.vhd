@@ -4,7 +4,7 @@ use ieee.std_logic_unsigned.all;
 
 entity table_RAM is
   Port (data_in_fromCC : in std_logic_vector(67 downto 0); 
-        data_out_toCC : out std_logic_vector(67 downto 0);
+        data_out_toCC ,data_in_fromCC_debug: out std_logic_vector(67 downto 0);
         wb_fromCC : in std_logic;
         wb_ToCC,done : out std_logic;
         clk : in std_logic );
@@ -14,7 +14,8 @@ architecture Behavioral of table_RAM is
 
 type matrix is array(0 to 127) of std_logic_vector(67 downto 0);
 signal M : Matrix :=(
-        0 => "0"&"0" &"00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111",
+        0 => "0"&"0" &"11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"08888111",
+        1 => "1"&"0" &"10"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
         others =>(others =>'0'));
 
 signal data_out_aux : std_logic_vector( 67 downto 0) :=(others =>'0');
@@ -45,9 +46,9 @@ begin
                                     end loop;
                                     
                             if wb_fromCC = '1' then 
-                                M(index_line_original) <= data_in_fromCC(67 downto 32) & M(index_line_other)(31 downto 0) ; -- S
+                                M(index_line_original) <=data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ; -- S
                                 M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
-                                data_out_aux<= data_in_fromCC(67 downto 32) & M(index_line_other)(31 downto 0);
+                                data_out_aux<= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
                                 wb_to_aux<='1';
                                 done_aux<= '1';
                              else 
@@ -69,5 +70,6 @@ begin
 done <= done_aux;
 wb_ToCC <= wb_to_aux;
 data_out_toCC <= data_out_aux;
+data_in_fromCC_debug <= data_in_fromCC;
 
 end Behavioral;

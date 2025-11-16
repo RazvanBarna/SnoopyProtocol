@@ -70,7 +70,7 @@ begin
     if rising_edge(clk) then 
         line_debug<=M(address);
         ucc_aux <= '0';
-        if wb = '1'and readWriteCC = '0' and lw_swInstr ='1' then 
+        if wb = '1'  then 
             m(address) <= data_fromCC;
             memData<=data_fromCC(31 downto 0);
         elsif en='1' and memWrite='1' and readWriteCC = '1' and lw_swInstr ='1'  then --a mereu cand scrie trimit cerere
@@ -81,8 +81,10 @@ begin
           elsif readWriteCC = '0' and en = '1' and lw_swInstr ='1'  then -- citeste , prima data intra in wb daca este invalid ,aici M sau S
             ucc_aux<= '1' ;
             send_data_to_bus <= m(address);
-            m(address)(65 downto 64) <= "00";
-            memData <= m(address)(31 downto 0);
+            if(not m(address)(65 downto 64 ) ="11") then 
+                m(address)(65 downto 64) <= "00";
+                memData <= m(address)(31 downto 0);
+                end if;
             --else memData <= Rd2;
             end if;
             end if;
