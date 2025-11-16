@@ -6,7 +6,7 @@ entity UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(67 downto 0);
         data_toCore0,data_toCore1,data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo: in std_logic;
-        wb_toCore0, wb_toCore1,wb_table_degbug : out std_logic;
+        wb_toCore0, wb_toCore1 : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -133,5 +133,5 @@ write_core: process(clk)
             end process;
 
 data_fromTable_debug <= data_fromTable;
-wb_table_degbug<= wb_table;
+
 end Behavioral;

@@ -15,9 +15,9 @@ end mux_selector;
 architecture Behavioral of mux_selector is
 
 signal data_total_aux0, data_total_aux1 : std_logic_vector(67 downto 0);
-signal turn : std_logic := '0';   -- round robin state
+signal turn : std_logic := '0';  
 
-signal sel : std_logic;  -- cine este selectat final
+signal sel : std_logic;  
 
 begin
 
