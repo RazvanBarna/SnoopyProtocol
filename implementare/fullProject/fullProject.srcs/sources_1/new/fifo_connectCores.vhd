@@ -11,8 +11,7 @@
             data_in   : in std_logic_vector(67 downto 0);
             full, empty,new_fifo : out std_logic;
             data_out : out std_logic_vector(67 downto 0);
-            wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0);
-            out_test :out std_logic_vector(67 downto 0)
+            wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0)
              );
     end fifo_connectCores;
     
@@ -45,17 +44,17 @@
     begin
     
     
-    search_for_duplicate: process(data_in,M)
-    begin
-       -- found <= '0'; 
-        for i in 0 to 31 loop
-            if M(i) = data_in and (not (data_in = X"00000000000000000" )) then
-                out_test <= M(i);
-               -- found <= '1';
-                exit;
-            end if;
-        end loop;
-    end process;
+--    search_for_duplicate: process(data_in,M)
+--    begin
+--       -- found <= '0'; 
+--        for i in 0 to 31 loop
+--            if M(i) = data_in and (not (data_in = X"00000000000000000" )) then
+--                out_test <= M(i);
+--               -- found <= '1';
+--                exit;
+--            end if;
+--        end loop;
+--    end process;
     
     
      write_pointer: process(clk)
