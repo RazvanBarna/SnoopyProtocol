@@ -6,8 +6,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity Mem0 is
    Port (memWrite,En,clk,wb,readWriteCC,lw_swInstr: in std_logic;
          AluRes,Rd2: in std_logic_vector(31 downto 0);
-         data_fromCC : in std_logic_vector(65 downto 0);
-         send_data_to_bus,line_debug : out std_logic_vector(65 downto 0) ; 
+         data_fromCC : in std_logic_vector(63 downto 0);
+         send_data_to_bus,line_debug : out std_logic_vector(63 downto 0) ; 
          useCC: out std_logic;
          memData,aluResOut: out std_logic_vector(31 downto 0));
 end Mem0;
@@ -16,11 +16,11 @@ end Mem0;
 architecture Behavioral of Mem0 is
 signal line_indexCc, address, address_aux : integer range 0 to 63 := 0;
 signal found : std_logic :='0';
-type matrix is array(0 to 63) of std_logic_vector(65 downto 0);
+type matrix is array(0 to 63) of std_logic_vector(63 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "00"& "0000" &X"9877" & "10" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
-    1 => "00"& "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
+    0 => "0000" &X"9877" & "10" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
+    1 => "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
 --    4 => "10" & x"00000020" & "0100" & "0000" & x"DEADBE", -- +12   (pozitiv)
@@ -48,7 +48,7 @@ find_line: process(clk) -- caut daca nu e 0 ceea ce primesc
         if rising_edge(clk) then
             if wb = '1' then 
              for i in 0 to 63 loop
-            if m(i) = data_fromCC(63 downto 32) and (not (data_fromCC = X"0000000000000000" & "00")) then
+            if m(i) = data_fromCC(63 downto 32) and (not (data_fromCC = X"0000000000000000")) then
                 line_indexCc <= i;
                 exit;
             end if;
@@ -76,16 +76,13 @@ begin
             memData<=data_fromCC(31 downto 0);
         elsif en='1' and memWrite='1' and readWriteCC = '1' and lw_swInstr ='1'  then --a mereu cand scrie trimit cerere
             ucc_aux<= '1' ;
-            send_data_to_bus <= m(address)(65 downto 32) & Rd2; -- trimit cu fosta stare , dar valoarea noua
-             m(address) <= "10" & m(address)(63 downto 32) & Rd2; -- asta scriu , devine M si in CC trimit 
+            send_data_to_bus <= m(address)(63 downto 32) & Rd2; -- trimit cu fosta stare , dar valoarea noua
+             m(address)(31 downto 0) <=  Rd2; -- asta scriu , devine M si in CC trimit 
              memData<=Rd2;
           elsif readWriteCC = '0' and en = '1' and lw_swInstr ='1'  then -- citeste , prima data intra in wb daca este invalid ,aici M sau S
-            ucc_aux<= '1' ;
+            ucc_aux<= '1' ; -- trimit la fiecare citire si vad ulterior daca e wb
             send_data_to_bus <= m(address);
-            if(not m(address)(65 downto 64 ) ="11") then 
-                m(address)(65 downto 64) <= "00";
-                memData <= m(address)(31 downto 0);
-                end if;
+            memData <= m(address)(31 downto 0);
             --else memData <= Rd2;
             end if;
             end if;

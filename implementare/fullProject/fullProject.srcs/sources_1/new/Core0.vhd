@@ -4,9 +4,9 @@ use ieee.std_logic_unsigned.all;
 
 entity Core0 is
   Port (clk,btnRst,wb,core_id_in,next_instr_core0: in std_logic; --core id e in ca sa il setez eu
-        data_fromCC : in std_logic_vector(65 downto 0);
+        data_fromCC : in std_logic_vector(63 downto 0);
         readWriteCC,core_id_out,useCC,lw_swInstr: out std_logic;
-        send_data_to_bus,debug,line_debug : out std_logic_vector(65 downto 0)        
+        send_data_to_bus,debug,line_debug : out std_logic_vector(63 downto 0)        
         );
 end Core0;
 
@@ -52,8 +52,8 @@ end component;
 component Mem0 is
    Port (memWrite,En,clk,wb,readWriteCC,lw_swInstr: in std_logic;
          AluRes,Rd2: in std_logic_vector(31 downto 0);
-         data_fromCC : in std_logic_vector(65 downto 0);
-         send_data_to_bus,line_debug : out std_logic_vector(65 downto 0) ; 
+         data_fromCC : in std_logic_vector(63 downto 0);
+         send_data_to_bus,line_debug : out std_logic_vector(63 downto 0) ; 
          useCC: out std_logic;
          memData,aluResOut: out std_logic_vector(31 downto 0));
 end component;
@@ -67,7 +67,7 @@ signal muxOut: std_logic_vector(31 downto 0) :=(others =>'0');
 signal func: std_logic_vector(5 downto 0) :=(others =>'0');
 signal sa : std_logic_vector(4 downto 0) :=(others =>'0');
 
-signal send_data_to_bus_aux :std_logic_vector(65 downto 0) :=(others =>'0');
+signal send_data_to_bus_aux :std_logic_vector(63 downto 0) :=(others =>'0');
 
 begin
 en <='1';

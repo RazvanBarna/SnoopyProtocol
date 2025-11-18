@@ -4,6 +4,37 @@ Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 Running: C:/Xilinx/Vivado/2024.1/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L secureip --snapshot tb_main_behav xil_defaultlib.tb_main -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
-WARNING: [VRFC 10-8856] comparison between unequal length arrays always returns FALSE; left argument length 66 is different from right argument length 32 for 'std_logic_vector_93' array [C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/Mem.vhd:51]
+WARNING: [VRFC 10-8856] comparison between unequal length arrays always returns FALSE; left argument length 64 is different from right argument length 32 for 'std_logic_vector_93' array [C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/imports/compVhd/Mem.vhd:51]
+WARNING: [VRFC 10-8856] comparison between unequal length arrays always returns TRUE; left argument length 68 is different from right argument length 64 for 'std_logic_vector_93' array [C:/Facultate/An 3/Semestrul 1/SSC/Lab/SnoopyProtocol/implementare/fullProject/fullProject.srcs/sources_1/new/UC_Snoopy.vhd:102]
 Completed static elaboration
-INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.std_logic_arith
+Compiling package ieee.std_logic_unsigned
+Compiling package ieee.numeric_std
+Compiling architecture behavioral of entity xil_defaultlib.RomInstructions0 [rominstructions0_default]
+Compiling architecture behavioral of entity xil_defaultlib.IFetch0 [ifetch0_default]
+Compiling architecture behavioral of entity xil_defaultlib.ID [id_default]
+Compiling architecture behavioral of entity xil_defaultlib.Execution [execution_default]
+Compiling architecture behavioral of entity xil_defaultlib.Mem0 [mem0_default]
+Compiling architecture behavioral of entity xil_defaultlib.UC [uc_default]
+Compiling architecture behavioral of entity xil_defaultlib.Core0 [core0_default]
+Compiling architecture behavioral of entity xil_defaultlib.RomInstructions1 [rominstructions1_default]
+Compiling architecture behavioral of entity xil_defaultlib.IFetch1 [ifetch1_default]
+Compiling architecture behavioral of entity xil_defaultlib.Mem1 [mem1_default]
+Compiling architecture behavioral of entity xil_defaultlib.Core1 [core1_default]
+Compiling architecture behavioral of entity xil_defaultlib.mux_selector [mux_selector_default]
+Compiling architecture behavioral of entity xil_defaultlib.fifo_component_2ids [fifo_component_2ids_default]
+Compiling architecture behavioral of entity xil_defaultlib.decoder_5to32 [decoder_5to32_default]
+Compiling architecture behavioral of entity xil_defaultlib.fifo_connectCores [fifo_connectcores_default]
+Compiling architecture behavioral of entity xil_defaultlib.Get_fullLine_state [get_fullline_state_default]
+Compiling architecture behavioral of entity xil_defaultlib.table_RAM [table_ram_default]
+Compiling architecture behavioral of entity xil_defaultlib.UC_Snoopy [uc_snoopy_default]
+Compiling architecture behavioral of entity xil_defaultlib.MainMem [mainmem_default]
+Compiling architecture arhi_main of entity xil_defaultlib.main [main_default]
+Compiling architecture behavioral of entity xil_defaultlib.tb_main
+Built simulation snapshot tb_main_behav

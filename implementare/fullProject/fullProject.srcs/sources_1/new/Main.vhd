@@ -6,10 +6,13 @@ entity main is
     Port(
          clk,btnRst: in std_logic;
          send_data_to_CCback: out std_logic_vector(63 downto 0);
-         out_toMuxCore0_debug,out_toMuxCore1_debug : out std_logic_vector(65 downto 0);
-         line_mem_debug0, line_mem_debug1 : out std_logic_vector(65 downto 0);
+         data_in_fifo_debug : out std_logic_vector(65 downto 0);
+         out_toMuxCore0_debug,out_toMuxCore1_debug : out std_logic_vector(63 downto 0);
+         line_mem_debug0, line_mem_debug1 : out std_logic_vector(63 downto 0);
          wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0);
-         data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0);
+         data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0);
+         data_fromTable_debug,data_in_fromCC_debug,data_fromTable_toGet_debug : out std_logic_vector(67 downto 0);
+         original_line_debug, other_line_debug : out std_logic_vector(67 downto 0);
          full,empty : out std_logic
          );
 end entity;
@@ -18,44 +21,47 @@ architecture arhi_main of main is
 
 component Core0 is
   Port (clk,btnRst,wb,core_id_in,next_instr_core0: in std_logic; --core id e in ca sa il setez eu
-        data_fromCC : in std_logic_vector(65 downto 0);
+        data_fromCC : in std_logic_vector(63 downto 0);
         readWriteCC,core_id_out,useCC,lw_swInstr: out std_logic;
-        send_data_to_bus,debug,line_debug : out std_logic_vector(65 downto 0)        
+        send_data_to_bus,debug,line_debug : out std_logic_vector(63 downto 0)        
         );
 end component;
 
 component Core1 is
   Port (clk,btnRst,wb,core_id_in,next_instr_core1: in std_logic; --core id e in ca sa il setez eu
-        data_fromCC : in std_logic_vector(65 downto 0);
+        data_fromCC : in std_logic_vector(63 downto 0);
         readWriteCC,core_id_out,useCC,lw_swInstr: out std_logic;
-        send_data_to_bus,debug,line_debug : out std_logic_vector(65 downto 0)        
+        send_data_to_bus,debug,line_debug : out std_logic_vector(63 downto 0)        
         );
 end component;
 
 
 component mux_selector is
   Port (id_0, id_1,readWrite_type0,readWrite_type1 : in std_logic;
-        data_in0,data_in1: in std_logic_vector(65 downto 0);
+        data_in0,data_in1: in std_logic_vector(63 downto 0);
         useCC0,clk, useCC1 : in std_logic;
         wr_fifo: out std_logic;
-        data_out_toCC: out std_logic_vector(67 downto 0));
+        data_out_toCC: out std_logic_vector(65 downto 0));
 end component;
 
 component fifo_connectCores is
       Port (
             rd, wr, wr_inc, rd_inc, rst, clk : in std_logic;
-            data_in   : in std_logic_vector(67 downto 0);
+            data_in   : in std_logic_vector(65 downto 0);
             full, empty,new_fifo : out std_logic;
-            data_out : out std_logic_vector(67 downto 0);
+            data_out : out std_logic_vector(65 downto 0);
             wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0)
              );
 end component;
 
 
 component UC_Snoopy is
-  Port( data_inFIFO : in std_logic_vector(67 downto 0);
-        data_toCore0,data_toCore1,data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
+  Port( data_inFIFO : in std_logic_vector(65 downto 0);
+        data_toCore0,data_toCore1:out std_logic_vector(63 downto 0);
+        data_in_fifo_debug : out std_logic_vector(65 downto 0);
+        data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug,data_fromTable_toGet_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
+        original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
         wb_toCore0, wb_toCore1 : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
@@ -70,8 +76,9 @@ component MainMem is
 end component;
 
 signal wb0,lw_swInstr0,lw_swInstr1,wb1,wb_table_degbug_aux,next_instr_core0,next_instr_core1,readWriteCC0, readWriteCC1,core_id0_out,core_id1_out,useCC0,useCC1,new_fifo,wr_fifo,rd_fifo,write_enMain : std_logic :='0';
-signal data_fromCC0,data_fromCC1,data_out_toCC, data_out_toCC_fromFIFO : std_logic_vector(67 downto 0) := (others =>'0');
-signal send_data_to_bus0, send_data_to_bus1 : std_logic_vector(65 downto 0) :=(others =>'0');
+signal data_fromCC0,data_fromCC1  : std_logic_vector(63 downto 0) := (others =>'0');
+signal data_out_toCC,data_out_toCC_fromFIFO : std_logic_vector(65 downto 0):=(others =>'0');
+signal send_data_to_bus0, send_data_to_bus1 : std_logic_vector(63 downto 0) :=(others =>'0');
 signal data_toMain : std_logic_vector(63 downto 0) :=(others =>'0');
 
 begin
@@ -83,7 +90,7 @@ Core_0: Core0 port map(
                         wb => wb0,
                         core_id_in => '0',
                         next_instr_core0 => next_instr_core0,
-                        data_fromCC =>data_fromCC0(65 downto 0),
+                        data_fromCC =>data_fromCC0(63 downto 0),
                         readWriteCC => readWriteCC0,
                         core_id_out => core_id0_out,
                         lw_swInstr => lw_swInstr0,
@@ -98,7 +105,7 @@ Core_1: Core1 port map(
                         wb => wb1,
                         core_id_in => '1',
                         next_instr_core1 => next_instr_core1,
-                        data_fromCC =>data_fromCC1(65 downto 0),
+                        data_fromCC =>data_fromCC1(63 downto 0),
                         readWriteCC => readWriteCC1,
                         core_id_out => core_id1_out,
                         lw_swInstr => lw_swInstr1,
@@ -141,10 +148,15 @@ fifo_connect_mux_cc: fifo_connectCores port map(
 snoopy_cc : UC_Snoopy port map(
                                 data_inFIFO => data_out_toCC_fromFIFO,
                                 data_toCore0 =>data_fromCC0 ,
+                                data_in_fifo_debug=>data_in_fifo_debug,
                                 data_toCore1 => data_fromCC1,
                                 data_fromTable_debug => data_fromTable_debug,
                                 clk => clk,new_fifo => new_fifo,
                                 wb_toCore0 => wb0,
+                                data_fromTable_toGet_debug => data_fromTable_toGet_debug,
+                                data_inFIFOFromTable_debug => data_inFIFOFromTable_debug,
+                                original_line_debug => original_line_debug,
+                                other_line_debug => other_line_debug,
                                 lw_str_core0 =>lw_swInstr0,
                                 lw_str_core1 =>lw_swInstr1,
                                 wb_toCore1 => wb1,

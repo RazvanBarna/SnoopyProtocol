@@ -5,8 +5,11 @@ use ieee.std_logic_unsigned.all;
 entity table_RAM is
   Port (data_in_fromCC : in std_logic_vector(67 downto 0); 
         data_out_toCC ,data_in_fromCC_debug: out std_logic_vector(67 downto 0);
-        wb_fromCC : in std_logic;
-        wb_ToCC,done : out std_logic;
+        original_line,other_line : out std_logic_vector(67 downto 0);
+        out_withState: out std_logic_vector(67 downto 0);
+        search_state : in std_logic_vector(65 downto 0);
+        wb_fromCC,modify_state : in std_logic;
+        wb_ToCC,done ,done_read: out std_logic;
         clk : in std_logic );
 end table_RAM;
 
@@ -21,8 +24,32 @@ signal M : Matrix :=(
 signal data_out_aux : std_logic_vector( 67 downto 0) :=(others =>'0');
 signal wb_to_aux : std_logic := '0';
 signal done_aux : std_logic :='0';
+signal found : std_logic :='0';
+signal original_line_aux , other_line_aux : std_logic_vector(67 downto 0) :=(others =>'0');
 
 begin
+
+process(clk)
+variable index : integer range 0 to 127 := 0;
+variable found_v : std_logic := '0';
+begin
+    if rising_edge(clk) then 
+        found_v := '0';
+        done_read<='0';
+          for i in 0 to 127 loop
+               if M(i)(67) =search_state(65) and M(i)(63 downto 32) = search_state(63 downto 32) and (search_state /= "000000000000000000000000000000000000000000000000000000000000000000000000") then
+                  index := i;
+                  found_v := '1';
+              exit;
+             end if;
+             end loop;
+             if found_v = '1' then 
+                done_read<='1';
+                out_withState<= search_state(65 downto 64) &  M(index)(65 downto 32) & search_state(31 downto 0);
+            end if;
+            end if;
+
+end process;
      
     modify_process: process(clk)
         variable index_line_original : integer range 0 to 127 := 0;
@@ -45,11 +72,14 @@ begin
                                         end if;
                                     end loop;
                                     
-                            if wb_fromCC = '1' then 
+                            if modify_state = '1' then 
+                            if wb_fromCC = '1'then 
                                 M(index_line_original) <=data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ; -- S
                                 M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
                                 data_out_aux<= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
                                 wb_to_aux<='1';
+                                original_line_aux <= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
+                                other_line_aux <= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
                                 done_aux<= '1';
                              else 
                                 wb_to_aux<='0';
@@ -58,10 +88,17 @@ begin
                                     M(index_line_other)(65 downto 64) <= "11"; -- fac invalid pe celalalt
                                     M(index_line_original) <= data_in_fromCC;
                                     data_out_aux<= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
+                                    original_line_aux <= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
+                                    other_line_aux<= M(index_line_other)(67 downto 66) & "11" & M(index_line_other)(63 downto 0);
                                     else --citire
                                       M(index_line_other)(65 downto 64) <= "00"; 
+                                      M(index_line_original)(65 downto 64) <= "00";
                                       data_out_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
+                                      original_line_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
+                                      other_line_aux<= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
+                                      
                                     end if;
+                                end if;
                                 end if;
                                 end if;
                                 
@@ -71,5 +108,7 @@ done <= done_aux;
 wb_ToCC <= wb_to_aux;
 data_out_toCC <= data_out_aux;
 data_in_fromCC_debug <= data_in_fromCC;
+original_line<= original_line_aux;
+other_line<= other_line_aux;
 
 end Behavioral;

@@ -3,6 +3,7 @@ vhdl xil_defaultlib  \
 "../../../../fullProject.srcs/sources_1/new/Core0.vhd" \
 "../../../../fullProject.srcs/sources_1/new/Core1.vhd" \
 "../../../../fullProject.srcs/sources_1/imports/compVhd/Execution.vhd" \
+"../../../../fullProject.srcs/sources_1/new/Get_fullLine_state.vhd" \
 "../../../../fullProject.srcs/sources_1/imports/compVhd/ID.vhd" \
 "../../../../fullProject.srcs/sources_1/imports/compVhd/IFetch.vhd" \
 "../../../../fullProject.srcs/sources_1/new/IFetch1.vhd" \

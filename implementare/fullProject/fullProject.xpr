@@ -60,7 +60,7 @@
     <Option Name="IPUserFilesDir" Val="$PIPUSERFILESDIR"/>
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
-    <Option Name="WTXSimLaunchSim" Val="562"/>
+    <Option Name="WTXSimLaunchSim" Val="627"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -107,6 +107,12 @@
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../../../../../Users/Razvan/OneDrive/Desktop/MIps_SC_Barna_Razvan/compVhd/Execution.vhd"/>
           <Attr Name="ImportTime" Val="1744350303"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/Get_fullLine_state.vhd">
+        <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>

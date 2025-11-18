@@ -8,9 +8,9 @@
     entity fifo_connectCores is
       Port (
             rd, wr, wr_inc, rd_inc, rst, clk : in std_logic;
-            data_in   : in std_logic_vector(67 downto 0);
+            data_in   : in std_logic_vector(65 downto 0);
             full, empty,new_fifo : out std_logic;
-            data_out : out std_logic_vector(67 downto 0);
+            data_out : out std_logic_vector(65 downto 0);
             wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0)
              );
     end fifo_connectCores;
@@ -22,13 +22,13 @@
         signal count_aux : integer := 0; 
         constant max_size : integer := 32;
         
-        type matrix is array(0 to 63) of std_logic_vector(67 downto 0);
+        type matrix is array(0 to 63) of std_logic_vector(65 downto 0);
         signal M : matrix := (others => (others => '0'));
     
     component fifo_component_2ids is
       Port (wr, decode_out,clk,rst: in std_logic;
-            data_in : in std_logic_vector(67 downto 0);
-            fifo_out: out std_logic_vector(67 downto 0));
+            data_in : in std_logic_vector(65 downto 0);
+            fifo_out: out std_logic_vector(65 downto 0));
     end component;
         
         component decoder_5to32 is
@@ -50,7 +50,7 @@
 --        for i in 0 to 31 loop
 --            if M(i) = data_in and (not (data_in = X"00000000000000000" )) then
 --                out_test <= M(i);
---               -- found <= '1';
+--               -- found <= '1'; sa folosesc found aici in write pointer si in componenta
 --                exit;
 --            end if;
 --        end loop;
