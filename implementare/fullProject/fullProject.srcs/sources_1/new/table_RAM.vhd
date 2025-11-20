@@ -45,7 +45,7 @@ begin
              end loop;
              if found_v = '1' then 
                 done_read<='1';
-                out_withState<= search_state(65 downto 64) & "11"& M(index)(63 downto 32) & search_state(31 downto 0);
+                out_withState<= search_state(65 downto 64) & M(index)(65 downto 32) & search_state(31 downto 0);
             end if;
             end if;
 
@@ -58,6 +58,7 @@ end process;
 
                         if rising_edge(clk) then 
                             wb_to_aux<='0';
+                            done_aux<='0';
                                     for i in 0 to 127 loop
                                      if M(i)(67) =(not data_in_fromCC(67)) and M(i)(63 downto 32) = data_in_fromCC(63 downto 32) then
                                         index_line_other := i;
@@ -73,30 +74,29 @@ end process;
                                     end loop;
                                     
                             if modify_state = '1' and data_in_fromCC /= X"00000000000000000" then 
-                            if wb_fromCC = '1'then 
-                                M(index_line_original) <=data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ; -- S
-                                M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
-                                data_out_aux<= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
-                                wb_to_aux<='1';
-                                original_line_aux <= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
-                                other_line_aux <= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
                                 done_aux<= '1';
-                             else 
-                                wb_to_aux<='0';
-                                done_aux<= '1';
-                                if data_in_fromCC(66) = '1' then --scrie d
-                                    M(index_line_other)(65 downto 64) <= "11"; -- fac invalid pe celalalt
-                                    M(index_line_original) <= data_in_fromCC;
-                                    data_out_aux<= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
-                                    original_line_aux <= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
-                                    other_line_aux<= M(index_line_other)(67 downto 66) & "11" & M(index_line_other)(63 downto 0);
-                                    else --citire
-                                      M(index_line_other)(65 downto 64) <= "00"; 
-                                      M(index_line_original)(65 downto 64) <= "00";
-                                      data_out_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
-                                      original_line_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
-                                      other_line_aux<= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
-                                      
+                                if wb_fromCC = '1'then 
+                                    M(index_line_original) <=data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ; -- S
+                                    M(index_line_other)(65 downto 64) <= "00"; -- S pe celallt care era M
+                                    data_out_aux<= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
+                                    wb_to_aux<='1';
+                                    original_line_aux <= data_in_fromCC(67 downto 66)  & "00" & data_in_fromCC(63 downto 32) & M(index_line_other)(31 downto 0) ;
+                                    other_line_aux <= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
+                                 else 
+                                    wb_to_aux<='0';
+                                    if data_in_fromCC(66) = '1' then --scrie d
+                                        M(index_line_other)(65 downto 64) <= "11"; -- fac invalid pe celalalt
+                                        M(index_line_original) <= data_in_fromCC;
+                                        data_out_aux<= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
+                                        original_line_aux <= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
+                                        other_line_aux<= M(index_line_other)(67 downto 66) & "11" & M(index_line_other)(63 downto 0);
+                                        else --citire
+                                          M(index_line_other)(65 downto 64) <= "00"; 
+                                          M(index_line_original)(65 downto 64) <= "00";
+                                          data_out_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
+                                          original_line_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
+                                          other_line_aux<= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
+                                          
                                     end if;
                                 end if;
                                 end if;

@@ -13,7 +13,7 @@ entity main is
          data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0);
          data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0);
          original_line_debug, other_line_debug : out std_logic_vector(67 downto 0);
-         full,empty : out std_logic
+         full,empty,DONE,modify_state_out : out std_logic
          );
 end entity;
 
@@ -63,7 +63,7 @@ component UC_Snoopy is
         data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
-        wb_toCore0, wb_toCore1 : out std_logic;
+        wb_toCore0, wb_toCore1,DONE,modify_state_out : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -150,6 +150,7 @@ snoopy_cc : UC_Snoopy port map(
                                 data_inFIFO => data_out_toCC_fromFIFO,
                                 data_toCore0 =>data_fromCC0 ,
                                 start=> start,
+                                modify_state_out => modify_state_out,
                                 data_in_fifo_debug=>data_in_fifo_debug,
                                 data_toCore1 => data_fromCC1,
                                 data_fromTable_debug => data_fromTable_debug,
@@ -161,6 +162,7 @@ snoopy_cc : UC_Snoopy port map(
                                 lw_str_core0 =>lw_swInstr0,
                                 lw_str_core1 =>lw_swInstr1,
                                 wb_toCore1 => wb1,
+                                DONE => DONE,
                                 write_enMain => write_enMain,
                                 next_instr_core0 =>next_instr_core0,
                                 data_in_fromCC_debug =>data_in_fromCC_debug,
