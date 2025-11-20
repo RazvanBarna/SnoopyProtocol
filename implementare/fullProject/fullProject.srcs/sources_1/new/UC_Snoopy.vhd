@@ -9,7 +9,7 @@ entity UC_Snoopy is
         data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
-        wb_toCore0, wb_toCore1, DONE,modify_state_out : out std_logic;
+        wb_toCore0, wb_toCore1, DONE,modify_state_out,DONE_GET_OUT : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -46,7 +46,7 @@ end component;
 
 signal data_fromTable_toGet,data_out_Get : std_logic_vector(67 downto 0) :=(others =>'0');
 signal data_toTable_fromGet  : std_logic_vector(65 downto 0) :=(others =>'0');
-signal done_read_table,modify_state,done_get,read_table_aux : std_logic :='0';
+signal done_read_table,modify_state,done_get,read_table_aux,continue_FSM : std_logic :='0';
 
 begin
 
@@ -55,6 +55,7 @@ next_instr_core1 <= '1' when (done_aux ='1' and data_out_Get(67) = '1') or lw_st
 rd_fifo <= start or done_aux;
 DONE <= done_aux;
 modify_state_out<=modify_state;
+DONE_GET_OUT<=done_get;
 
 C0 : Get_fullLine_state port map(
                                  clk => clk,
@@ -104,17 +105,19 @@ FSM: process(clk)
     begin
         if rising_edge(clk) then 
         modify_state <='0';
-       if modify_state='0'and (data_out_Get /=  X"0000000000000000") then
+       if modify_state='0'and (done_get = '1' or continue_FSM = '1')and (data_out_Get /=  X"0000000000000000") then
         wb_aux <= '0';
             case current_state is
                 when S => if data_out_Get(66) = '0'  then 
                                next_state <= S; -- citeste 
                                data_toTable<=data_out_Get(67 downto 66) & "00" & data_out_Get(63 downto 0);
                                modify_state <='1';
+                               continue_FSM<='0';
                                --wb_aux <= '0';
                            else 
                                 --scrie
                                 next_state <= M;
+                                continue_FSM<='1';
                                 --wb_aux <= '0';
                             end if;
                                 
@@ -122,10 +125,12 @@ FSM: process(clk)
                                 next_state <= M ; -- citeste tot el 
                                 data_toTable <= data_out_Get;
                                 modify_state <='1';
+                                continue_FSM<='0';
                                 --wb_aux <= '0';
                              else 
                                 --scrie si el
                                 next_state<=M;
+                                continue_FSM<='0';
                                 data_toTable <=data_out_Get(67 downto 66) & "10" & data_out_Get(63 downto 0); -- noua valoare cu M
                                 modify_state <='1';
                                 --wb_aux <='0';
@@ -133,10 +138,12 @@ FSM: process(clk)
                               
                    when I =>  if data_out_Get(66) = '0' then -- wb
                                 next_state <= S;
+                                continue_FSM<='1';
                                 --data_toTable<=data_inFIFO(67 downto 66) & "11" & data_inFIFO(63 downto 0);
                                 wb_aux <='1';
                               else
                                 next_state <= M;
+                                continue_FSM<='1';
                                 --wb_aux <='0';
                               end if;
                               
