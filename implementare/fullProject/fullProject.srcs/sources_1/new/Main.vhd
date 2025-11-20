@@ -4,14 +4,14 @@ use ieee.std_logic_unsigned.all;
 
 entity main is
     Port(
-         clk,btnRst: in std_logic;
+         clk,btnRst,start: in std_logic;
          send_data_to_CCback: out std_logic_vector(63 downto 0);
          data_in_fifo_debug : out std_logic_vector(65 downto 0);
          out_toMuxCore0_debug,out_toMuxCore1_debug : out std_logic_vector(63 downto 0);
          line_mem_debug0, line_mem_debug1 : out std_logic_vector(63 downto 0);
          wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0);
          data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0);
-         data_fromTable_debug,data_in_fromCC_debug,data_fromTable_toGet_debug : out std_logic_vector(67 downto 0);
+         data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0);
          original_line_debug, other_line_debug : out std_logic_vector(67 downto 0);
          full,empty : out std_logic
          );
@@ -57,9 +57,10 @@ end component;
 
 component UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(65 downto 0);
+        start : in std_logic;
         data_toCore0,data_toCore1:out std_logic_vector(63 downto 0);
         data_in_fifo_debug : out std_logic_vector(65 downto 0);
-        data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug,data_fromTable_toGet_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
+        data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
         wb_toCore0, wb_toCore1 : out std_logic;
@@ -148,12 +149,12 @@ fifo_connect_mux_cc: fifo_connectCores port map(
 snoopy_cc : UC_Snoopy port map(
                                 data_inFIFO => data_out_toCC_fromFIFO,
                                 data_toCore0 =>data_fromCC0 ,
+                                start=> start,
                                 data_in_fifo_debug=>data_in_fifo_debug,
                                 data_toCore1 => data_fromCC1,
                                 data_fromTable_debug => data_fromTable_debug,
                                 clk => clk,new_fifo => new_fifo,
                                 wb_toCore0 => wb0,
-                                data_fromTable_toGet_debug => data_fromTable_toGet_debug,
                                 data_inFIFOFromTable_debug => data_inFIFOFromTable_debug,
                                 original_line_debug => original_line_debug,
                                 other_line_debug => other_line_debug,
