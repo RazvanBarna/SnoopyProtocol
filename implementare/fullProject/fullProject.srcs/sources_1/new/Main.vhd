@@ -6,14 +6,14 @@ entity main is
     Port(
          clk,btnRst,start: in std_logic;
          send_data_to_CCback: out std_logic_vector(63 downto 0);
-         data_in_fifo_debug : out std_logic_vector(65 downto 0);
+         data_in_fifo_debug,DATA_FROMCC_TOTABLE_GET : out std_logic_vector(65 downto 0);
          out_toMuxCore0_debug,out_toMuxCore1_debug : out std_logic_vector(63 downto 0);
          line_mem_debug0, line_mem_debug1 : out std_logic_vector(63 downto 0);
          wr_ptr_out,rd_ptr_out : out std_logic_vector(4 downto 0);
          data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0);
          data_fromTable_debug,data_in_fromCC_debug : out std_logic_vector(67 downto 0);
          original_line_debug, other_line_debug : out std_logic_vector(67 downto 0);
-         full,empty,DONE,modify_state_out,DONE_GET_OUT : out std_logic
+         full,empty,DONE,modify_state_out,DONE_GET_OUT,NEW_FIFO_OUT,WB_FOR_WB : out std_logic
          );
 end entity;
 
@@ -59,11 +59,11 @@ component UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(65 downto 0);
         start : in std_logic;
         data_toCore0,data_toCore1:out std_logic_vector(63 downto 0);
-        data_in_fifo_debug : out std_logic_vector(65 downto 0);
+        data_in_fifo_debug,DATA_FROMCC_TOTABLE_GET : out std_logic_vector(65 downto 0);
         data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
-        wb_toCore0, wb_toCore1,DONE,modify_state_out,DONE_GET_OUT : out std_logic;
+        wb_toCore0, wb_toCore1,DONE,modify_state_out,DONE_GET_OUT,NEW_FIFO_OUT,WB_FOR_WB : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -150,7 +150,10 @@ snoopy_cc : UC_Snoopy port map(
                                 data_inFIFO => data_out_toCC_fromFIFO,
                                 data_toCore0 =>data_fromCC0 ,
                                 start=> start,
+                                NEW_FIFO_OUT=>NEW_FIFO_OUT,
+                                DATA_FROMCC_TOTABLE_GET=>DATA_FROMCC_TOTABLE_GET,
                                 DONE_GET_OUT => DONE_GET_OUT,
+                                WB_FOR_WB=>WB_FOR_WB,
                                 modify_state_out => modify_state_out,
                                 data_in_fifo_debug=>data_in_fifo_debug,
                                 data_toCore1 => data_fromCC1,

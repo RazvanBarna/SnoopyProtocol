@@ -5,11 +5,11 @@ entity UC_Snoopy is
   Port( data_inFIFO : in std_logic_vector(65 downto 0);
         start : in std_logic;
         data_toCore0,data_toCore1:out std_logic_vector(63 downto 0);
-        data_in_fifo_debug : out std_logic_vector(65 downto 0);
+        data_in_fifo_debug,DATA_FROMCC_TOTABLE_GET : out std_logic_vector(65 downto 0);
         data_fromTable_debug,data_in_fromCC_debug,data_inFIFOFromTable_debug : out std_logic_vector(67 downto 0); --67 , scriu in daca trb ; id 1 bit , read/write type 1 bit , state 2 biti , tag 22 , index 6 , offset 4 , data 32 biti
         clk,new_fifo,lw_str_core0,lw_str_core1: in std_logic;
         original_line_debug,other_line_debug : out std_logic_vector(67 downto 0);
-        wb_toCore0, wb_toCore1, DONE,modify_state_out,DONE_GET_OUT : out std_logic;
+        wb_toCore0, wb_toCore1, DONE,modify_state_out,DONE_GET_OUT,NEW_FIFO_OUT,WB_FOR_WB : out std_logic;
         write_enMain,next_instr_core0, next_instr_core1,rd_fifo  : out std_logic;
         line_toMain : out std_logic_vector(63 downto 0)
         );
@@ -38,7 +38,7 @@ component Get_fullLine_state is
   Port (clk,en : in std_logic;
         data_in : in std_logic_vector(65 downto 0);
         data_fromTable : in std_logic_vector(67 downto 0);
-        data_toTable : out std_logic_vector(65 downto 0);
+        data_toTable,DATA_FROMCC_TOTABLE_GET : out std_logic_vector(65 downto 0);
         data_out: out std_logic_vector(67 downto 0); 
         done_get,read_table : out std_logic;       
         done_read_table : in std_logic );
@@ -56,10 +56,13 @@ rd_fifo <= start or done_aux;
 DONE <= done_aux;
 modify_state_out<=modify_state;
 DONE_GET_OUT<=done_get;
+NEW_FIFO_OUT<=new_fifo;
+WB_FOR_WB<=wb_aux;
 
 C0 : Get_fullLine_state port map(
                                  clk => clk,
                                  en => new_fifo,
+                                 DATA_FROMCC_TOTABLE_GET=> DATA_FROMCC_TOTABLE_GET,
                                  done_get=>done_get,
                                  data_in =>data_inFIFO,
                                   data_fromTable => data_fromTable_toGet,
@@ -95,7 +98,7 @@ begin
                 when "00" => current_state <= S;
                 when "11" => current_state <= I;
                 when "10" => current_state <= M;
-                when others => current_state <= S;
+                when others => current_state <= I;
                 end case;
                 end if;
     end if;
@@ -105,14 +108,15 @@ FSM: process(clk)
     begin
         if rising_edge(clk) then 
         modify_state <='0';
-       if modify_state='0'and (done_get = '1' or continue_FSM = '1')and (data_out_Get /=  X"0000000000000000") then
         wb_aux <= '0';
+       if modify_state='0'and (done_get = '1' or continue_FSM = '1')and (data_out_Get /=  X"0000000000000000") then
             case current_state is
                 when S => if data_out_Get(66) = '0'  then 
                                next_state <= S; -- citeste 
                                data_toTable<=data_out_Get(67 downto 66) & "00" & data_out_Get(63 downto 0);
                                modify_state <='1';
                                continue_FSM<='0';
+                              -- wb_aux <='1';
                                --wb_aux <= '0';
                            else 
                                 --scrie
@@ -137,14 +141,15 @@ FSM: process(clk)
                               end if;
                               
                    when I =>  if data_out_Get(66) = '0' then -- wb
-                                next_state <= S;
-                                continue_FSM<='1';
-                                --data_toTable<=data_inFIFO(67 downto 66) & "11" & data_inFIFO(63 downto 0);
                                 wb_aux <='1';
+                                --next_state <= S;
+                                continue_FSM<='1';
+                                data_toTable<=data_out_Get(67 downto 66) & "00" & data_out_Get(63 downto 0);
+                                --data_toTable<=data_inFIFO(67 downto 66) & "11" & data_inFIFO(63 downto 0);
                               else
                                 next_state <= M;
                                 continue_FSM<='1';
-                                --wb_aux <='0';
+                               -- wb_aux <='0';
                               end if;
                               
                               end case;

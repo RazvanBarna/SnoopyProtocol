@@ -43,19 +43,7 @@
     
     begin
     
-    
---    search_for_duplicate: process(data_in,M)
---    begin
---       -- found <= '0'; 
---        for i in 0 to 31 loop
---            if M(i) = data_in and (not (data_in = X"00000000000000000" )) then
---                out_test <= M(i);
---               -- found <= '1'; sa folosesc found aici in write pointer si in componenta
---                exit;
---            end if;
---        end loop;
---    end process;
-    
+
     
      write_pointer: process(clk)
         begin

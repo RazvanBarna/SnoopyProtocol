@@ -19,8 +19,8 @@ signal found : std_logic :='0';
 type matrix is array(0 to 63) of std_logic_vector(63 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "0000" &X"9877" & "10" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
-    1 => "0000" &X"1001" & "00" & "000010" & "0001" & X"08888111", --  -3   (negativ)
+    0 => "0000" &X"9877" & "00" & "000100" & "0000" & X"00AAAAAA", --  +5   (pozitiv) stare tag index offset data
+    1 => "0000" &X"1001" & "10" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
 --    4 => "10" & x"00000020" & "0100" & "0000" & x"DEADBE", -- +12   (pozitiv)

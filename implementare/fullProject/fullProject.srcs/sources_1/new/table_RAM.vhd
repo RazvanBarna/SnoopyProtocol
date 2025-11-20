@@ -17,8 +17,8 @@ architecture Behavioral of table_RAM is
 
 type matrix is array(0 to 127) of std_logic_vector(67 downto 0);
 signal M : Matrix :=(
-        0 => "0"&"0" &"11"& "0000" &X"9877" & "10" & "000100" & "0000" & X"08888111",
-        1 => "1"&"0" &"10"& "0000" &X"9877" & "10" & "000100" & "0000" &X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
+        0 => "0"&"0" &"11"& "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111",
+        1 => "1"&"0" &"10"& "0000" &X"9877" & "00" & "000100" & "0000" & X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
         others =>(others =>'0'));
 
 signal data_out_aux : std_logic_vector( 67 downto 0) :=(others =>'0');
@@ -27,29 +27,29 @@ signal done_aux : std_logic :='0';
 signal found : std_logic :='0';
 signal original_line_aux , other_line_aux : std_logic_vector(67 downto 0) :=(others =>'0');
 
-begin
-
-process(clk)
-variable index : integer range 0 to 127 := 0;
-variable found_v : std_logic := '0';
-begin
-    if rising_edge(clk) then 
-        found_v := '0';
-        done_read<='0';
-          for i in 0 to 127 loop
-               if M(i)(67) =search_state(65)and read_table = '1' and M(i)(63 downto 32) = search_state(63 downto 32) and (search_state /= "000000000000000000000000000000000000000000000000000000000000000000000000") then
-                  index := i;
-                  found_v := '1';
-              exit;
-             end if;
-             end loop;
-             if found_v = '1' then 
-                done_read<='1';
-                out_withState<= search_state(65 downto 64) & M(index)(65 downto 32) & search_state(31 downto 0);
-            end if;
-            end if;
-
-end process;
+    begin
+    
+    process(clk)
+    variable index : integer range 0 to 127 := 0;
+    variable found_v : std_logic := '0';
+    begin
+        if rising_edge(clk) then 
+            found_v := '0';
+            done_read<='0';
+              for i in 0 to 127 loop
+                   if M(i)(67) =search_state(65)and read_table = '1' and M(i)(63 downto 32) = search_state(63 downto 32)then
+                      index := i;
+                      found_v := '1';
+                  exit;
+                 end if;
+                 end loop;
+                 if found_v = '1' then  
+                    done_read<='1';
+                    out_withState<= search_state(65 downto 64) & M(index)(65 downto 32) & search_state(31 downto 0);
+                end if;
+                end if;
+    
+    end process;
      
     modify_process: process(clk)
         variable index_line_original : integer range 0 to 127 := 0;
