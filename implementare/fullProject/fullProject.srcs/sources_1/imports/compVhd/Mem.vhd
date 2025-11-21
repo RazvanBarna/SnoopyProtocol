@@ -43,7 +43,7 @@ alu_res_aux <= aluRes(7 downto 2);
 address_aux <= to_integer(unsigned(AluRes(7 downto 2))) mod 64;
 
 
-find_line: process(clk) -- caut daca nu e 0 ceea ce primesc
+find_line: process(clk) 
         begin 
         if rising_edge(clk) then
             if wb = '1' then 
@@ -77,14 +77,12 @@ begin
             memData <= data_fromCC(31 downto 0);
 
         elsif en = '1' and readWriteCC = '1' and memWrite='1' and lw_swInstr='1' then
-            -- write to CC only for lw/sw
             ucc_aux <= '1';
             send_data_to_bus <= m(address)(63 downto 32) & Rd2;
             m(address)(31 downto 0) <= Rd2;
             memData <= Rd2;
 
         elsif en = '1' and readWriteCC = '0' and lw_swInstr='1' then
-            -- read from CC only for lw/sw
             ucc_aux <= '1';
             send_data_to_bus <= m(address);
             memData <= m(address)(31 downto 0);

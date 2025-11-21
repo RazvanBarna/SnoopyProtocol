@@ -98,7 +98,6 @@ begin
       latched_line  <= data_out_Get;
       latched_valid <= '1';
     elsif (done_aux = '1' and modify_state = '1') then
-      -- table_RAM finished the modification request: we can clear payload
       latched_valid <= '0';
     end if;
   end if;
@@ -123,22 +122,18 @@ end process;
 FSM: process(clk)
 begin
     if rising_edge(clk) then
-        -- default values (nu resetăm modify_state aici; îl controlăm explicit)
         wb_aux <= '0';
         continue_FSM <= '0';
         next_state <= current_state;
 
-        -- Trigger FSM dacă avem o linie capturată sau continuăm o operație
         if (latched_valid = '1' or continue_FSM = '1') then
             case current_state is
                 when S =>
                     if latched_line(66) = '0' then
-                        -- read in S
                         next_state <= S;
                         data_toTable <= latched_line(67 downto 66) & "00" & latched_line(63 downto 0);
-                        modify_state <= '1';  -- cerere de scriere în table_RAM
+                        modify_state <= '1'; 
                     else
-                        -- write in S -> upgrade la M
                         next_state <= M;
                         modify_state <= '1';
                         continue_FSM <= '1';
@@ -158,13 +153,10 @@ begin
 
                 when I =>
                     if latched_line(66) = '0' then
-                        -- need WB then bring line -> we assert wb and request modify after wb completes
                         wb_aux <= '1';
-                        -- do NOT assert modify_state until we have the new line; 
-                        -- practical approach: keep latched_valid set, and after done_aux clear, FSM will re-evaluate and then set modify_state
+                        modify_state <= '1';
                         continue_FSM <= '1';
                     else
-                        -- write into I -> upgrade to M
                         next_state <= M;
                         modify_state <= '1';
                         continue_FSM <= '1';
@@ -175,10 +167,8 @@ begin
             end case;
         end if;
 
-        -- clear modify_state when table_RAM finished processing (done_aux)
         if done_aux = '1' then
             modify_state <= '0';
-            -- latched_valid is cleared in latch-process above when done_aux and modify_state='1'
         end if;
     end if;
 end process;

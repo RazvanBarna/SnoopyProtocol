@@ -12,18 +12,16 @@ entity mux_selector is
 end mux_selector;
 
 architecture Behavioral of mux_selector is
-    signal turn : std_logic := '0';  -- round-robin turn
+    signal turn : std_logic := '0'; 
     signal data_out_aux : std_logic_vector(65 downto 0);
-    signal last_sent : std_logic_vector(65 downto 0) := (others => '0'); -- ultimul ce s-a trimis
+    signal last_sent : std_logic_vector(65 downto 0) := (others => '0');
     signal candidate : std_logic_vector(65 downto 0);
 begin
 
     process(clk)
     begin
         if rising_edge(clk) then
-            wr_fifo <= '0'; -- default
-
-            -- selectăm ce candidat să trimitem
+            wr_fifo <= '0';
             if useCC0 = '1' and useCC1 = '1' then
                 if turn = '0' then
                     candidate <= id_0 & readWrite_type0 & data_in0;
@@ -39,10 +37,9 @@ begin
                 candidate <= id_1 & readWrite_type1 & data_in1;
                 turn <= '0';
             else
-                candidate <= (others => '0'); -- nimic de trimis
+                candidate <= (others => '0'); 
             end if;
 
-            -- trimitem doar dacă diferă de ultima instrucțiune
             if candidate /= last_sent and candidate /= X"0000000000000000" & "00" then
                 data_out_aux <= candidate;
                 wr_fifo <= '1';
