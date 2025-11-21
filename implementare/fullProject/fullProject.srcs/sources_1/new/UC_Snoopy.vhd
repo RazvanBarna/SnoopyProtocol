@@ -47,7 +47,8 @@ end component;
 signal data_fromTable_toGet,data_out_Get : std_logic_vector(67 downto 0) :=(others =>'0');
 signal data_toTable_fromGet  : std_logic_vector(65 downto 0) :=(others =>'0');
 signal done_read_table,modify_state,done_get,read_table_aux,continue_FSM : std_logic :='0';
-
+signal latched_line   : std_logic_vector(67 downto 0) := (others => '0');
+signal latched_valid  : std_logic := '0';
 begin
 
 next_instr_core0 <= '1' when (done_aux ='1' and data_out_Get(67) = '0') or lw_str_core0 = '0' else '0';
@@ -87,75 +88,100 @@ C: table_RAM port map(
                      done => done_aux,
                      data_out_toCC =>data_fromTable );
 
- data_in_fromCC_debug <= data_in_fromCC_debug_aux;           
+ data_in_fromCC_debug <= data_in_fromCC_debug_aux;  
+   
+ -- latch data_out_Get when Get_fullLine_state tells us it's ready
+process(clk)
+begin
+  if rising_edge(clk) then
+    if done_get = '1' then
+      latched_line  <= data_out_Get;
+      latched_valid <= '1';
+    elsif (done_aux = '1' and modify_state = '1') then
+      -- table_RAM finished the modification request: we can clear payload
+      latched_valid <= '0';
+    end if;
+  end if;
+end process;
+       
 state_reg: process(clk)
 begin
     if rising_edge(clk) then
-        if done_get = '0' then   
-            current_state <= next_state; 
-        elsif done_get = '1' and modify_state = '0' then 
-         case data_out_Get(65 downto 64) is 
+        if latched_valid = '1' and modify_state = '0' then
+            case latched_line(65 downto 64) is
                 when "00" => current_state <= S;
                 when "11" => current_state <= I;
                 when "10" => current_state <= M;
                 when others => current_state <= I;
-                end case;
-                end if;
+            end case;
+        else
+            current_state <= next_state;
+        end if;
     end if;
 end process;
     
 FSM: process(clk)
-    begin
-        if rising_edge(clk) then 
-        modify_state <='0';
+begin
+    if rising_edge(clk) then
+        -- default values (nu resetăm modify_state aici; îl controlăm explicit)
         wb_aux <= '0';
-       if modify_state='0'and (done_get = '1' or continue_FSM = '1')and (data_out_Get /=  X"0000000000000000") then
+        continue_FSM <= '0';
+        next_state <= current_state;
+
+        -- Trigger FSM dacă avem o linie capturată sau continuăm o operație
+        if (latched_valid = '1' or continue_FSM = '1') then
             case current_state is
-                when S => if data_out_Get(66) = '0'  then 
-                               next_state <= S; -- citeste 
-                               data_toTable<=data_out_Get(67 downto 66) & "00" & data_out_Get(63 downto 0);
-                               modify_state <='1';
-                               continue_FSM<='0';
-                              -- wb_aux <='1';
-                               --wb_aux <= '0';
-                           else 
-                                --scrie
-                                next_state <= M;
-                                continue_FSM<='1';
-                                --wb_aux <= '0';
-                            end if;
-                                
-                  when M =>  if data_out_Get(66) = '0' then 
-                                next_state <= M ; -- citeste tot el 
-                                data_toTable <= data_out_Get;
-                                modify_state <='1';
-                                continue_FSM<='0';
-                                --wb_aux <= '0';
-                             else 
-                                --scrie si el
-                                next_state<=M;
-                                continue_FSM<='0';
-                                data_toTable <=data_out_Get(67 downto 66) & "10" & data_out_Get(63 downto 0); -- noua valoare cu M
-                                modify_state <='1';
-                                --wb_aux <='0';
-                              end if;
-                              
-                   when I =>  if data_out_Get(66) = '0' then -- wb
-                                wb_aux <='1';
-                                --next_state <= S;
-                                continue_FSM<='1';
-                                data_toTable<=data_out_Get(67 downto 66) & "00" & data_out_Get(63 downto 0);
-                                --data_toTable<=data_inFIFO(67 downto 66) & "11" & data_inFIFO(63 downto 0);
-                              else
-                                next_state <= M;
-                                continue_FSM<='1';
-                               -- wb_aux <='0';
-                              end if;
-                              
-                              end case;
-                              end if;
-                              end if;
-           end process;
+                when S =>
+                    if latched_line(66) = '0' then
+                        -- read in S
+                        next_state <= S;
+                        data_toTable <= latched_line(67 downto 66) & "00" & latched_line(63 downto 0);
+                        modify_state <= '1';  -- cerere de scriere în table_RAM
+                    else
+                        -- write in S -> upgrade la M
+                        next_state <= M;
+                        modify_state <= '1';
+                        continue_FSM <= '1';
+                        data_toTable <= latched_line(67 downto 66) & "10" & latched_line(63 downto 0);
+                    end if;
+
+                when M =>
+                    if latched_line(66) = '0' then
+                        next_state <= M;
+                        data_toTable <= latched_line;
+                        modify_state <= '1';
+                    else
+                        next_state <= M;
+                        data_toTable <= latched_line(67 downto 66) & "10" & latched_line(63 downto 0);
+                        modify_state <= '1';
+                    end if;
+
+                when I =>
+                    if latched_line(66) = '0' then
+                        -- need WB then bring line -> we assert wb and request modify after wb completes
+                        wb_aux <= '1';
+                        -- do NOT assert modify_state until we have the new line; 
+                        -- practical approach: keep latched_valid set, and after done_aux clear, FSM will re-evaluate and then set modify_state
+                        continue_FSM <= '1';
+                    else
+                        -- write into I -> upgrade to M
+                        next_state <= M;
+                        modify_state <= '1';
+                        continue_FSM <= '1';
+                        data_toTable <= latched_line(67 downto 66) & "10" & latched_line(63 downto 0);
+                    end if;
+                when others =>
+                    next_state <= I;
+            end case;
+        end if;
+
+        -- clear modify_state when table_RAM finished processing (done_aux)
+        if done_aux = '1' then
+            modify_state <= '0';
+            -- latched_valid is cleared in latch-process above when done_aux and modify_state='1'
+        end if;
+    end if;
+end process;
                               
                               
 write_main: process(clk)

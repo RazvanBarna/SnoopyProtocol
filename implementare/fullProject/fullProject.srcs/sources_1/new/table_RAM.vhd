@@ -17,8 +17,8 @@ architecture Behavioral of table_RAM is
 
 type matrix is array(0 to 127) of std_logic_vector(67 downto 0);
 signal M : Matrix :=(
-        0 => "0"&"0" &"11"& "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111",
-        1 => "1"&"0" &"10"& "0000" &X"9877" & "00" & "000100" & "0000" & X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
+        0 => "0"&"0" &"00"& "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111",
+        1 => "1"&"0" &"00"& "0000" &X"9877" & "00" & "000100" & "0000" & X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
         others =>(others =>'0'));
 
 signal data_out_aux : std_logic_vector( 67 downto 0) :=(others =>'0');
