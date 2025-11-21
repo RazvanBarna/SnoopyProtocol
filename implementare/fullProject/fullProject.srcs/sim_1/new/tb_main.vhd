@@ -68,10 +68,10 @@ clk_process: process
 test_process: process
               begin
               start <='1';
---              wait for 90 ns;
---              start <='0';
---              wait for 20 ns;
---              start <='0';
+              wait for 90 ns;
+              start <='0';
+              wait for 20 ns;
+              start <='0';
               wait for 200 ns;
               
               

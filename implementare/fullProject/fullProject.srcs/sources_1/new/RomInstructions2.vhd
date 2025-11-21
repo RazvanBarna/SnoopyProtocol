@@ -12,9 +12,11 @@
     architecture Behavioral of RomInstructions0 is
     type matrix is array(0 to 31 ) of std_logic_vector(31 downto 0);
     signal m : matrix :=(
-        B"100000_00011_00011_0000000000001111", -- pun in reg 3 15
-        B"100001_00000_00011_0000000000000000", -- scriu ce e in reg 3 la adr 0
-        B"100010_00000_00011_0000000000000000",
+       B"100000_00011_00011_0000000000001111",-- pun in reg 3 15
+        --B"100001_00000_00011_0000000000000000", -- pun in reg 3 15
+        B"100010_00000_00011_0000000000000000", -- scriu ce e in reg 3 la adr 0
+        --B"100001_00000_00011_0000000000000000",
+         --B"100010_00000_00011_0000000000000000",
         --  lw $3, A_addr($0) add $1, $0, $0  (init contor bucla)   **0x0000 0801**
         --B"100010_00000_00010_0000000000000000", -- add $7, $0, $0  (init contor nr pozitive) **0x0000 3801**
 --        B"100000_00000_00100_0000000000001010", -- addi $4, $0, 10 (nr iteratii) **0x8004 000A**

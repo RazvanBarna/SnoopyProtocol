@@ -126,7 +126,7 @@ switch_mux : mux_selector port map(
                                    data_in1 => send_data_to_bus1,
                                    useCC0 => useCC0,
                                    useCC1 => useCC1,
-                                   wr_fifo => wr_fifo,
+                                       wr_fifo => wr_fifo,
                                    data_out_toCC => data_out_toCC
                                     );
                                     

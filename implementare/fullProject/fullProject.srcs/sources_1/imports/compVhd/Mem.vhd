@@ -19,7 +19,7 @@ signal found : std_logic :='0';
 type matrix is array(0 to 63) of std_logic_vector(63 downto 0);
 signal m : matrix := (
     -- Date de la adresa 12 la 21 (10 elemente semnate)
-    0 => "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111", --  +5   (pozitiv) stare tag index offset data
+    0 => "0000" &X"9877" & "00" & "000100" & "0000" & X"0AAAAAAA", --  +5   (pozitiv) stare tag index offset data
     1 => "0000" &X"1001" & "10" & "000010" & "0001" & X"08888111", --  -3   (negativ)
 --    2 => x"00000007", --  +7   (pozitiv)
 --    3 => x"FFFFFFF8", --  -8   (negativ)
@@ -69,24 +69,29 @@ useCC <= ucc_aux;
 process(clk)
 begin   
     if rising_edge(clk) then 
-        line_debug<=M(address);
+        line_debug <= m(address);
         ucc_aux <= '0';
-        if wb = '1'  then 
+        
+        if wb = '1' then
             m(address) <= data_fromCC;
-            memData<=data_fromCC(31 downto 0);
-        elsif en='1' and memWrite='1' and readWriteCC = '1' and lw_swInstr ='1'  then --a mereu cand scrie trimit cerere
-            ucc_aux<= '1' ;
-            send_data_to_bus <= m(address)(63 downto 32) & Rd2; -- trimit cu fosta stare , dar valoarea noua
-             m(address)(31 downto 0) <=  Rd2; -- asta scriu , devine M si in CC trimit 
-             memData<=Rd2;
-          elsif readWriteCC = '0' and en = '1' and lw_swInstr ='1'  then -- citeste , prima data intra in wb daca este invalid ,aici M sau S
-            ucc_aux<= '1' ; -- trimit la fiecare citire si vad ulterior daca e wb
+            memData <= data_fromCC(31 downto 0);
+
+        elsif en = '1' and readWriteCC = '1' and memWrite='1' and lw_swInstr='1' then
+            -- write to CC only for lw/sw
+            ucc_aux <= '1';
+            send_data_to_bus <= m(address)(63 downto 32) & Rd2;
+            m(address)(31 downto 0) <= Rd2;
+            memData <= Rd2;
+
+        elsif en = '1' and readWriteCC = '0' and lw_swInstr='1' then
+            -- read from CC only for lw/sw
+            ucc_aux <= '1';
             send_data_to_bus <= m(address);
             memData <= m(address)(31 downto 0);
-            --else memData <= Rd2;
-            end if;
-            end if;
-            end process;
-          
+
+        end if;
+    end if;
+end process;
+
  
 end Behavioral;

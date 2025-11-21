@@ -17,7 +17,7 @@ architecture Behavioral of table_RAM is
 
 type matrix is array(0 to 127) of std_logic_vector(67 downto 0);
 signal M : Matrix :=(
-        0 => "0"&"0" &"00"& "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111",
+        0 => "0"&"0" &"11"& "0000" &X"9877" & "00" & "000100" & "0000" & X"08888111",
         1 => "1"&"0" &"00"& "0000" &X"9877" & "00" & "000100" & "0000" & X"00CCCCCC", -- celalalt care share uieste si ar deveni invalid 
         others =>(others =>'0'));
 
@@ -91,11 +91,11 @@ signal original_line_aux , other_line_aux : std_logic_vector(67 downto 0) :=(oth
                                         original_line_aux <= data_in_fromCC(67 downto 66) & "10" & data_in_fromCC(63 downto 0) ;
                                         other_line_aux<= M(index_line_other)(67 downto 66) & "11" & M(index_line_other)(63 downto 0);
                                         else --citire
-                                          M(index_line_other)(65 downto 64) <= "00"; 
+                                          --M(index_line_other)(65 downto 64) <= "00"; 
                                           M(index_line_original)(65 downto 64) <= "00";
                                           data_out_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
                                           original_line_aux<= M(index_line_original)(67 downto 66) & "00" &M(index_line_original)(63 downto 0) ;
-                                          other_line_aux<= M(index_line_other)(67 downto 66) & "00" & M(index_line_other)(63 downto 0);
+                                          other_line_aux<= M(index_line_other);
                                           
                                     end if;
                                 end if;
