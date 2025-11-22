@@ -90,7 +90,6 @@ C: table_RAM port map(
 
  data_in_fromCC_debug <= data_in_fromCC_debug_aux;  
    
- -- latch data_out_Get when Get_fullLine_state tells us it's ready
 process(clk)
 begin
   if rising_edge(clk) then

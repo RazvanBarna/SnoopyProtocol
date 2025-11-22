@@ -8,7 +8,7 @@ entity Get_fullLine_state is
         data_fromTable : in std_logic_vector(67 downto 0);
         data_toTable,DATA_FROMCC_TOTABLE_GET : out std_logic_vector(65 downto 0);
         data_out: out std_logic_vector(67 downto 0); 
-        done_get,read_table : out std_logic;       
+            done_get,read_table : out std_logic;       
         done_read_table : in std_logic );
 end Get_fullLine_state;
 
